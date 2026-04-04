@@ -110,7 +110,7 @@
   <div class="header-inner">
     <div class="header-sub">Shakil's Anime Vault</div>
     <h1>92 Anime Watched</h1>
-    <p>Sorted by Genre — 12 Categories</p>
+    <p>Sorted by Genre — 13 Categories</p>
   </div>
 </div>
 
@@ -136,6 +136,8 @@ const animeData = [
   { id: 68, title: "Serial Experiments Lain", genres: ["Psychological", "Sci-Fi", "Surreal"] },
   { id: 69, title: "Sonny Boy", genres: ["Psychological", "Surreal", "Sci-Fi"] },
   { id: 89, title: "The Future Diary", genres: ["Psychological", "Thriller", "Action"] },
+  { id: 91, title: "Pluto", genres: ["Psychological", "Sci-Fi", "Thriller"] },
+  { id: 91, title: "Pluto", genres: ["Psychological", "Sci-Fi", "Thriller"] },
   { id: 91, title: "Pluto", genres: ["Psychological", "Sci-Fi", "Thriller"] },
   { id: 13, title: "Uzumaki", genres: ["Horror", "Psychological"] },
   { id: 25, title: "Corpse Party: Tortured Souls", genres: ["Horror", "Gore"] },
@@ -173,7 +175,7 @@ const animeData = [
   { id: 74, title: "Akudama Drive", genres: ["Sci-Fi", "Action", "Thriller"] },
   { id: 80, title: "ID: Invaded", genres: ["Sci-Fi", "Mystery", "Psychological"] },
   { id: 2, title: "My Dress-Up Darling", genres: ["Romance", "Slice of Life", "Comedy"] },
-  { id: 35, title: "ReLIFE", genres: ["Romance", "Slice of Life", "Drama"] },
+  { id: 35, title: "ReLIFE + Kanketsu-hen", genres: ["Romance", "Slice of Life", "Drama"] },
   { id: 37, title: "Alya Sometimes Hides Her Feelings in Russian", genres: ["Romance", "Comedy"] },
   { id: 38, title: "Tomo-Chan is a Girl!", genres: ["Romance", "Comedy"] },
   { id: 48, title: "Anohana: The Flower We Saw That Day", genres: ["Drama", "Romance", "Supernatural"] },
@@ -182,10 +184,10 @@ const animeData = [
   { id: 70, title: "Your Lie in April", genres: ["Romance", "Drama", "Music"] },
   { id: 75, title: "Buddy Daddies", genres: ["Action", "Comedy", "Slice of Life"] },
   { id: 82, title: "Hokkaido Gals Are Super Adorable!", genres: ["Romance", "Comedy", "Slice of Life"] },
-  { id: 83, title: "Paradise Kiss", genres: ["Romance", "Drama"] },
+  { id: 83, title: "Paradise Kiss", genres: ["Shoujo", "Romance", "Drama"] },
   { id: 85, title: "More Than a Married Couple, But Not Lovers", genres: ["Romance", "Comedy"] },
   { id: 90, title: "The Angel Next Door Spoils Me Rotten", genres: ["Romance", "Slice of Life"] },
-  { id: 92, title: "NANA", genres: ["Romance", "Slice of Life", "Drama", "Music"] },
+  { id: 92, title: "NANA", genres: ["Shoujo", "Romance", "Drama", "Music"] },
   { id: 53, title: "Megalo Box", genres: ["Sports", "Action", "Drama"] },
   { id: 61, title: "Overtake!!", genres: ["Sports", "Drama"] },
   { id: 76, title: "Initial D", genres: ["Sports", "Racing", "Drama"] },
@@ -227,7 +229,9 @@ const GENRE_GROUPS = [
   { label: "🚀 Sci-Fi & Cyberpunk", key: "Sci-Fi", color: "#06b6d4", bg: "rgba(6,182,212,0.08)", border: "rgba(6,182,212,0.35)",
     match: g => (g.includes("Sci-Fi") || g.includes("Mecha") || g.includes("Cyberpunk")) && !g.includes("Action") },
   { label: "💕 Romance & Slice of Life", key: "Romance", color: "#ec4899", bg: "rgba(236,72,153,0.08)", border: "rgba(236,72,153,0.35)",
-    match: g => g.includes("Romance") || g.includes("Slice of Life") },
+    match: g => (g.includes("Romance") || g.includes("Slice of Life")) && !g.includes("Shoujo") },
+  { label: "🌸 Shoujo & Romance Drama", key: "Shoujo", color: "#f9a8d4", bg: "rgba(249,168,212,0.08)", border: "rgba(249,168,212,0.35)",
+    match: g => g.includes("Shoujo") },
   { label: "🏆 Sports", key: "Sports", color: "#22c55e", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.35)",
     match: g => g.includes("Sports") || g.includes("Racing") },
   { label: "🔍 Crime & Mystery", key: "Mystery", color: "#eab308", bg: "rgba(234,179,8,0.08)", border: "rgba(234,179,8,0.35)",
