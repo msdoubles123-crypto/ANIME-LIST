@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shakil's Anime Movie List — By Genre</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Noto+Sans+Bengali:wght@400;600&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+    :root {
+      --bg: #0a0a0f;
+      --panel: #0f0f1a;
+      --border: #1e1e35;
+      --accent1: #e63946;
+      --accent2: #4cc9f0;
+      --accent3: #f4a261;
+      --text: #d0d0e8;
+      --muted: #5a5a80;
+      --gold: #ffd700;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    header {
+      position: relative;
+      text-align: center;
+      padding: 60px 20px 40px;
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    header::after {
+      content: '映画';
+      position: absolute;
+      font-size: 200px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.015);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      letter-spacing: -10px;
+    }
+
+    header h1 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(18px, 4vw, 36px);
+      color: var(--gold);
+      letter-spacing: 2px;
+      text-shadow: 0 0 30px rgba(255,215,0,0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    header p {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge-total {
+      display: inline-block;
+      margin-top: 16px;
+      background: linear-gradient(135deg, var(--accent1), #9b1d23);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 4px 16px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* TOC */
+    .toc {
+      max-width: 960px;
+      margin: 40px auto 0;
+      padding: 0 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .toc a {
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 4px;
+      border: 1px solid;
+      transition: all 0.2s;
+    }
+
+    .toc a:hover { opacity: 0.7; transform: translateY(-1px); }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .genre-section {
+      margin-bottom: 52px;
+    }
+
+    .genre-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .genre-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .genre-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 15px;
+      letter-spacing: 1px;
+    }
+
+    .genre-count {
+      margin-left: auto;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
+    }
+
+    .movie-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .movie-card:hover {
+      transform: translateX(3px);
+    }
+
+    .movie-num {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--muted);
+      min-width: 28px;
+      margin-top: 2px;
+    }
+
+    .movie-info { flex: 1; }
+
+    .movie-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .movie-type {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    /* Genre color themes */
+    .g-psychological .genre-title { color: #9b5de5; }
+    .g-psychological .dot { background: #9b5de5; }
+    .g-psychological .movie-card:hover { border-color: #9b5de5; }
+    .toc .g-psychological { color: #9b5de5; border-color: #9b5de5; }
+
+    .g-action .genre-title { color: var(--accent1); }
+    .g-action .dot { background: var(--accent1); }
+    .g-action .movie-card:hover { border-color: var(--accent1); }
+    .toc .g-action { color: var(--accent1); border-color: var(--accent1); }
+
+    .g-scifi .genre-title { color: var(--accent2); }
+    .g-scifi .dot { background: var(--accent2); }
+    .g-scifi .movie-card:hover { border-color: var(--accent2); }
+    .toc .g-scifi { color: var(--accent2); border-color: var(--accent2); }
+
+    .g-romance .genre-title { color: #ff6b9d; }
+    .g-romance .dot { background: #ff6b9d; }
+    .g-romance .movie-card:hover { border-color: #ff6b9d; }
+    .toc .g-romance { color: #ff6b9d; border-color: #ff6b9d; }
+
+    .g-drama .genre-title { color: var(--accent3); }
+    .g-drama .dot { background: var(--accent3); }
+    .g-drama .movie-card:hover { border-color: var(--accent3); }
+    .toc .g-drama { color: var(--accent3); border-color: var(--accent3); }
+
+    .g-horror .genre-title { color: #ff3a20; }
+    .g-horror .dot { background: #ff3a20; }
+    .g-horror .movie-card:hover { border-color: #ff3a20; }
+    .toc .g-horror { color: #ff3a20; border-color: #ff3a20; }
+
+    .g-fantasy .genre-title { color: #06d6a0; }
+    .g-fantasy .dot { background: #06d6a0; }
+    .g-fantasy .movie-card:hover { border-color: #06d6a0; }
+    .toc .g-fantasy { color: #06d6a0; border-color: #06d6a0; }
+
+    .g-adventure .genre-title { color: #ffd166; }
+    .g-adventure .dot { background: #ffd166; }
+    .g-adventure .movie-card:hover { border-color: #ffd166; }
+    .toc .g-adventure { color: #ffd166; border-color: #ffd166); }
+
+    .g-slice .genre-title { color: #a8dadc; }
+    .g-slice .dot { background: #a8dadc; }
+    .g-slice .movie-card:hover { border-color: #a8dadc; }
+    .toc .g-slice { color: #a8dadc; border-color: #a8dadc; }
+
+    .g-experimental .genre-title { color: #c77dff; }
+    .g-experimental .dot { background: #c77dff; }
+    .g-experimental .movie-card:hover { border-color: #c77dff; }
+    .toc .g-experimental { color: #c77dff; border-color: #c77dff; }
+
+    .g-war .genre-title { color: #8d99ae; }
+    .g-war .dot { background: #8d99ae; }
+    .g-war .movie-card:hover { border-color: #8d99ae; }
+    .toc .g-war { color: #8d99ae; border-color: #8d99ae; }
+
+    .g-supernatural .genre-title { color: #e9c46a; }
+    .g-supernatural .dot { background: #e9c46a; }
+    .g-supernatural .movie-card:hover { border-color: #e9c46a; }
+    .toc .g-supernatural { color: #e9c46a; border-color: #e9c46a; }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Shakil's Anime Movie List</h1>
+  <p>Organized by Genre</p>
+  <div class="badge-total">62 Titles Watched</div>
+</header>
+
+<!-- Table of Contents -->
+<nav class="toc">
+  <a href="#psychological" class="g-psychological">🧠 Psychological</a>
+  <a href="#action" class="g-action">⚔️ Action</a>
+  <a href="#scifi" class="g-scifi">🤖 Sci-Fi</a>
+  <a href="#romance" class="g-romance">💗 Romance</a>
+  <a href="#drama" class="g-drama">🎭 Drama</a>
+  <a href="#horror" class="g-horror">💀 Horror</a>
+  <a href="#fantasy" class="g-fantasy">🌿 Fantasy</a>
+  <a href="#adventure" class="g-adventure">🗺️ Adventure</a>
+  <a href="#slice" class="g-slice">☕ Slice of Life</a>
+  <a href="#experimental" class="g-experimental">🎨 Experimental</a>
+  <a href="#war" class="g-war">🪖 War / Historical</a>
+  <a href="#supernatural" class="g-supernatural">👁️ Supernatural</a>
+</nav>
+
+<main>
+
+  <!-- PSYCHOLOGICAL -->
+  <section class="genre-section g-psychological" id="psychological">
+    <div class="genre-header">
+      <span class="genre-icon">🧠</span>
+      <span class="genre-title">Psychological / Thriller</span>
+      <span class="genre-count">7 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Perfect Blue</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Paprika</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Neon Genesis Evangelion: The End of Evangelion</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Ghost in the Shell</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Ghost in the Shell 2: Innocence</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Cat Soup</div><div class="movie-type">OVA</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Angel's Egg</div><div class="movie-type">Movie</div></div></div>
+    </div>
+  </section>
+
+  <!-- ACTION -->
+  <section class="genre-section g-action" id="action">
+    <div class="genre-header">
+      <span class="genre-icon">⚔️</span>
+      <span class="genre-title">Action / Martial Arts</span>
+      <span class="genre-count">7 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Jujutsu Kaisen 0</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Afro Samurai: Resurrection</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Chainsaw Man - The Movie: Reze Arc</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Ninja Scroll</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Redline</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Metal Skin Panic MADOX-01</div><div class="movie-type">OVA</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">The Last: Naruto the Movie</div><div class="movie-type">Movie</div></div></div>
+    </div>
+  </section>
+
+  <!-- SCI-FI -->
+  <section class="genre-section g-scifi" id="scifi">
+    <div class="genre-header">
+      <span class="genre-icon">🤖</span>
+      <span class="genre-title">Sci-Fi / Cyberpunk</span>
+      <span class="genre-count">6 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Akira</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Steamboy</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">The Animatrix</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Genius Party Beyond</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Memories</div><div class="movie-type">Movie (Anthology)</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Niccolo</div><div class="movie-type">Short Film</div></div></div>
+    </div>
+  </section>
+
+  <!-- ROMANCE -->
+  <section class="genre-section g-romance" id="romance">
+    <div class="genre-header">
+      <span class="genre-icon">💗</span>
+      <span class="genre-title">Romance</span>
+      <span class="genre-count">9 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Your Name</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">A Silent Voice</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Weathering with You</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">5 Centimeters Per Second</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">The Garden of Words</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">To Every You I've Loved Before</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">To Me, the One Who Loved You</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">I Want to Eat Your Pancreas</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Whisper of the Heart</div><div class="movie-type">Movie</div></div></div>
+    </div>
+  </section>
+
+  <!-- DRAMA -->
+  <section class="genre-section g-drama" id="drama">
+    <div class="genre-header">
+      <span class="genre-icon">🎭</span>
+      <span class="genre-title">Drama / Coming-of-Age</span>
+      <span class="genre-count">7 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Suzume</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Ocean waves</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">When Marnie Was There</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Goodbye, Don Glees!</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">The Tunnel to Summer, the Exit of Goodbyes</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">100 Meters</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Summer Ghost</div><div class="movie-type">Movie</div></div></div>
+    </div>
+  </section>
+
+  <!-- HORROR -->
+  <section class="genre-section g-horror" id="horror">
+    <div class="genre-header">
+      <span class="genre-icon">💀</span>
+      <span class="genre-title">Horror / Dark / Erotic Horror</span>
+      <span class="genre-count">6 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Shoujo Tsubaki: Midori</div><div class="movie-type">OVA</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Wicked City</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Demon City Shinjuku</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Bride of Deimos</div><div class="movie-type">OVA</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">The Curse of Kazuo Umezu</div><div class="movie-type">OVA</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Twilight of the Dark Master</div><div class="movie-type">OVA</div></div></div>
+    </div>
+  </section>
+
+  <!-- FANTASY -->
+  <section class="genre-section g-fantasy" id="fantasy">
+    <div class="genre-header">
+      <span class="genre-icon">🌿</span>
+      <span class="genre-title">Fantasy / Mythological</span>
+      <span class="genre-count">8 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Princess Mononoke</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Spirited Away</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Howl's Moving Castle</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Ponyo</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Children of the Sea</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">The Girl from the Other Side</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Maquia: When the Promised Flower Blooms</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">The Laws of the Sun</div><div class="movie-type">Movie</div></div></div>
+    </div>
+  </section>
+
+  <!-- ADVENTURE -->
+  <section class="genre-section g-adventure" id="adventure">
+    <div class="genre-header">
+      <span class="genre-icon">🗺️</span>
+      <span class="genre-title">Adventure</span>
+      <span class="genre-count">4 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">The Wind Rises</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">My Neighbor Totoro</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Modest Heroes</div><div class="movie-type">Movie (Anthology)</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">The Golden Laws</div><div class="movie-type">Movie</div></div></div>
+    </div>
+  </section>
+
+  <!-- SLICE OF LIFE -->
+  <section class="genre-section g-slice" id="slice">
+    <div class="genre-header">
+      <span class="genre-icon">☕</span>
+      <span class="genre-title">Slice of Life</span>
+      <span class="genre-count">2 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Into the Forest of Fireflies' Light</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Wolf Children</div><div class="movie-type">Movie</div></div></div>
+    </div>
+  </section>
+
+  <!-- EXPERIMENTAL / AVANT-GARDE -->
+  <section class="genre-section g-experimental" id="experimental">
+    <div class="genre-header">
+      <span class="genre-icon">🎨</span>
+      <span class="genre-title">Experimental / Avant-Garde</span>
+      <span class="genre-count">2 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Puparia</div><div class="movie-type">Short Film</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Vampire Hunter D: Bloodlust</div><div class="movie-type">Movie</div></div></div>
+    </div>
+  </section>
+
+  <!-- WAR / HISTORICAL -->
+  <section class="genre-section g-war" id="war">
+    <div class="genre-header">
+      <span class="genre-icon">🪖</span>
+      <span class="genre-title">War / Historical / Anti-War</span>
+      <span class="genre-count">3 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Barefoot Gen 1</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Barefoot Gen 2</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Grave of the Fireflies</div><div class="movie-type">Movie</div></div></div>
+    </div>
+  </section>
+
+  <!-- SUPERNATURAL / MYSTERY -->
+  <section class="genre-section g-supernatural" id="supernatural">
+    <div class="genre-header">
+      <span class="genre-icon">👁️</span>
+      <span class="genre-title">Supernatural / Mystery</span>
+      <span class="genre-count">8 titles</span>
+    </div>
+    <div class="movie-grid">
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Summer Ghost</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Into the Forest of Fireflies' Light</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">The Girl from the Other Side</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Jujutsu Kaisen 0</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Chainsaw Man - The Movie: Reze Arc</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Suzume</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Vampire Hunter D: Bloodlust</div><div class="movie-type">Movie</div></div></div>
+      <div class="movie-card"><span class="dot"></span><div class="movie-info"><div class="movie-title">Twilight of the Dark Master</div><div class="movie-type">OVA</div></div></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © Shakil's Anime Watchlist &nbsp;·&nbsp; 62 Titles &nbsp;·&nbsp; Genre Classification
+</footer>
+
+</body>
+</html>
