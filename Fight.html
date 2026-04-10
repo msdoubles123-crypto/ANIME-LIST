@@ -1,994 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BRUTAL ARENA</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Shakil's Anime Vault</title>
 <style>
-  :root {
-    --blood: #e01010;
-    --gold: #f5a623;
-    --dark: #0a0a0f;
-    --mid: #12121e;
-    --panel: #1a1a2e;
-    --cyan: #00ffe0;
-    --purple: #7b2fff;
-    --white: #f0f0f0;
-    --hp-green: #00e676;
-    --hp-yellow: #ffea00;
-    --hp-red: #ff1744;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: var(--dark);
-    font-family: 'Rajdhani', sans-serif;
-    color: var(--white);
+    min-height: 100vh;
+    background: #0a0a0f;
+    color: #e2e0f0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    padding-bottom: 60px;
+  }
+  .header {
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a0a2e 50%, #0a0f1a 100%);
+    border-bottom: 1px solid rgba(139,92,246,0.3);
+    padding: 36px 24px 28px;
+    text-align: center;
+    position: relative;
     overflow: hidden;
-    height: 100vh;
-    width: 100vw;
-    user-select: none;
   }
-
-  /* ── SCREENS ── */
-  .screen { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; }
-  .screen.active { display:flex; }
-
-  /* ── START SCREEN ── */
-  #startScreen {
-    background: radial-gradient(ellipse at 60% 40%, #1a0030 0%, #0a0a0f 70%);
+  .header-bg {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 20% 50%, rgba(139,92,246,0.08) 0%, transparent 60%),
+                      radial-gradient(circle at 80% 50%, rgba(6,182,212,0.06) 0%, transparent 60%);
   }
-  .title-block { text-align:center; margin-bottom:40px; }
-  .title-main {
-    font-family:'Bebas Neue', sans-serif;
-    font-size: clamp(60px,10vw,120px);
-    letter-spacing: 8px;
-    color: var(--white);
-    text-shadow: 0 0 40px var(--blood), 0 0 80px rgba(224,16,16,0.4);
-    animation: flicker 4s infinite;
+  .header-inner { position: relative; }
+  .header-sub { font-size: 11px; letter-spacing: 6px; color: #8b5cf6; text-transform: uppercase; margin-bottom: 8px; }
+  .header h1 {
+    font-size: clamp(24px, 7vw, 40px); font-weight: 800; letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 30%, #a78bfa 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
-  .title-sub {
-    font-size:18px; letter-spacing:12px; color:var(--gold);
-    text-transform:uppercase; margin-top:-8px;
+  .header p { margin-top: 8px; color: #6b7280; font-size: 14px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px 0; }
+  #searchInput {
+    width: 100%; padding: 12px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px; color: #e2e0f0;
+    font-size: 14px; outline: none;
+    margin-bottom: 24px;
   }
-  @keyframes flicker {
-    0%,95%,100%{ opacity:1; }
-    96%{ opacity:0.7; }
-    97%{ opacity:1; }
-    98%{ opacity:0.5; }
+  #searchInput::placeholder { color: #4b5563; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  .pill {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px;
+    cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.03); color: #9ca3af;
+    transition: all 0.2s; font-family: inherit;
   }
-
-  /* ── STYLE SELECT ── */
-  .style-grid {
-    display:grid; grid-template-columns: repeat(3,1fr);
-    gap:16px; margin:24px 0; width:min(700px,95vw);
+  .pill.active-all { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #e2e0f0; font-weight: 700; }
+  .genre-section { margin-bottom: 32px; }
+  .genre-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px; padding-bottom: 10px;
   }
-  .style-card {
-    background: var(--panel);
-    border: 2px solid #333;
-    border-radius: 8px;
-    padding: 18px 12px;
-    cursor: pointer;
-    transition: all .2s;
-    text-align:center;
-    position:relative; overflow:hidden;
+  .genre-title { font-size: 16px; font-weight: 700; }
+  .genre-count {
+    font-size: 11px; padding: 2px 8px; border-radius: 20px;
   }
-  .style-card:hover, .style-card.selected {
-    border-color: var(--gold);
-    background: rgba(245,166,35,0.08);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(245,166,35,0.25);
+  .anime-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 8px;
   }
-  .style-card .icon { font-size:36px; display:block; margin-bottom:8px; }
-  .style-card .sname { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; color:var(--gold); }
-  .style-card .sdesc { font-size:12px; color:#888; margin-top:4px; line-height:1.4; }
-  .style-card .stats { display:flex; gap:6px; margin-top:8px; justify-content:center; flex-wrap:wrap; }
-  .stat-pill { font-size:10px; padding:2px 7px; border-radius:20px; background:#222; color:#aaa; }
-  .stat-pill.high { background:rgba(0,230,118,0.15); color:var(--hp-green); }
-  .stat-pill.med { background:rgba(255,234,0,0.15); color:var(--hp-yellow); }
-  .stat-pill.low { background:rgba(255,23,68,0.15); color:var(--hp-red); }
-
-  .btn {
-    padding:14px 40px; border:none; border-radius:4px; cursor:pointer;
-    font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:3px;
-    transition: all .15s;
+  @media (max-width: 600px) {
+    .anime-grid { grid-template-columns: 1fr; }
   }
-  .btn-primary {
-    background: var(--blood);
-    color: white;
-    box-shadow: 0 4px 20px rgba(224,16,16,0.5);
+  .anime-card {
+    border-radius: 10px; padding: 10px 14px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: transform 0.15s;
   }
-  .btn-primary:hover { background:#ff2222; transform:scale(1.05); }
-  .btn-secondary { background:transparent; color:var(--gold); border:2px solid var(--gold); }
-  .btn-secondary:hover { background:rgba(245,166,35,0.1); }
-  .btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
-
-  /* ── GAME SCREEN ── */
-  #gameScreen { background: var(--dark); padding:0; }
-
-  /* HUD */
-  .hud {
-    width:100%; display:flex; align-items:center;
-    padding:12px 20px; gap:12px;
-    background:linear-gradient(180deg,rgba(0,0,0,0.9),transparent);
-    position:relative; z-index:10;
+  .anime-card:active { transform: scale(0.98); }
+  .anime-row { display: flex; align-items: center; gap: 8px; }
+  .anime-num { font-size: 11px; opacity: 0.7; min-width: 24px; }
+  .anime-title { font-weight: 600; font-size: 13px; line-height: 1.3; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 4px; padding-left: 32px; }
+  .tag {
+    font-size: 10px; padding: 1px 7px; border-radius: 20px;
+    background: rgba(0,0,0,0.3); color: #9ca3af;
+    border: 1px solid rgba(255,255,255,0.06);
   }
-  .fighter-hud { flex:1; }
-  .fighter-hud.enemy { text-align:right; }
-  .fighter-name { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; }
-  .hp-bar-wrap { height:14px; background:#111; border-radius:2px; overflow:hidden; margin-top:4px; border:1px solid #333; }
-  .hp-bar { height:100%; transition: width .3s, background .3s; border-radius:2px; }
-  .hp-label { font-size:11px; color:#777; margin-top:2px; }
-  .round-info { text-align:center; min-width:100px; }
-  .round-num { font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:3px; color:#555; }
-  .timer-display { font-family:'Bebas Neue',sans-serif; font-size:40px; line-height:1; color:var(--white); }
-  .combo-display { font-family:'Bebas Neue',sans-serif; font-size:13px; color:var(--gold); }
-
-  /* ARENA */
-  .arena-wrap { flex:1; position:relative; overflow:hidden; }
-  #arenaCanvas { display:block; width:100%; height:100%; }
-
-  /* CONTROL PANEL */
-  .control-panel {
-    width:100%; padding:10px 16px;
-    background:linear-gradient(0deg,rgba(0,0,0,0.95),transparent);
-    display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
+  .search-results { margin-bottom: 32px; }
+  .search-meta { font-size: 12px; color: #6b7280; margin-bottom: 10px; }
+  .search-card {
+    background: rgba(255,255,255,0.04); border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 12; flex-wrap: wrap;
+    border: 1px solid rgba(255,255,255,0.08);
   }
-  .move-group { display:flex; flex-direction:column; gap:6px; }
-  .move-group-label { font-size:11px; letter-spacing:2px; color:#555; text-transform:uppercase; }
-  .move-row { display:flex; gap:6px; flex-wrap:wrap; }
-  .move-btn {
-    padding:8px 14px; border:none; border-radius:4px; cursor:pointer;
-    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px;
-    transition: all .1s; letter-spacing:1px; position:relative; overflow:hidden;
+  .search-card-num { color: #4b5563; font-size: 12px; min-width: 22px; }
+  .search-card-title { font-weight: 600; font-size: 14px; flex: 1; }
+  .search-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .search-tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 20px;
+    background: rgba(139,92,246,0.15); color: #a78bfa;
+    border: 1px solid rgba(139,92,246,0.3);
   }
-  .move-btn:active { transform:scale(0.94); }
-  .move-btn.attack { background:#c0392b; color:#fff; }
-  .move-btn.special { background:linear-gradient(135deg,#7b2fff,#00ffe0); color:#fff; }
-  .move-btn.defense { background:#1e3a5f; color:#7bb3ff; border:1px solid #2a5298; }
-  .move-btn.mobility { background:#1a3320; color:#4caf50; border:1px solid #2e7d32; }
-  .move-btn:disabled { opacity:.35; cursor:not-allowed; }
-  .move-btn .cd-overlay {
-    position:absolute; inset:0; background:rgba(0,0,0,0.6);
-    display:flex; align-items:center; justify-content:center;
-    font-size:16px; font-family:'Bebas Neue',sans-serif; color:white;
-    pointer-events:none;
-  }
-  .energy-bar-wrap { display:flex; align-items:center; gap:8px; }
-  .energy-label { font-size:11px; color:#555; letter-spacing:2px; }
-  .energy-pips { display:flex; gap:4px; }
-  .energy-pip {
-    width:16px; height:16px; border-radius:3px;
-    border:1px solid #333; background:#111;
-    transition: background .2s, box-shadow .2s;
-  }
-  .energy-pip.filled { background:var(--cyan); box-shadow:0 0 8px var(--cyan); }
-
-  /* FLOATING TEXTS */
-  .float-text {
-    position:absolute; font-family:'Bebas Neue',sans-serif;
-    pointer-events:none; z-index:50; animation: floatUp .9s ease-out forwards;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-  }
-  @keyframes floatUp {
-    0%{ transform:translateY(0) scale(1); opacity:1; }
-    100%{ transform:translateY(-70px) scale(1.3); opacity:0; }
-  }
-
-  /* OVERLAY messages */
-  .arena-message {
-    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    z-index:40; pointer-events:none;
-  }
-  .arena-message-text {
-    font-family:'Bebas Neue',sans-serif; font-size:clamp(40px,8vw,80px);
-    letter-spacing:6px; color:white;
-    text-shadow:0 0 30px var(--blood), 0 0 60px rgba(224,16,16,0.5);
-    animation: msgPop .5s cubic-bezier(0.175,0.885,0.32,1.275);
-  }
-  @keyframes msgPop {
-    0%{ transform:scale(0.5); opacity:0; }
-    100%{ transform:scale(1); opacity:1; }
-  }
-
-  /* ── RESULT SCREEN ── */
-  #resultScreen {
-    background: radial-gradient(ellipse at center, #1a0010 0%, #0a0a0f 70%);
-  }
-  .result-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(50px,10vw,100px); letter-spacing:6px; }
-  .result-title.win { color:var(--gold); text-shadow:0 0 40px rgba(245,166,35,0.5); }
-  .result-title.lose { color:var(--blood); text-shadow:0 0 40px rgba(224,16,16,0.5); }
-  .result-stats { margin:20px 0; color:#888; font-size:16px; letter-spacing:1px; text-align:center; }
-  .result-stats span { color:var(--white); }
-
-  .screen-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(22px,4vw,36px); letter-spacing:4px; color:var(--gold); margin-bottom:8px; }
-
-  /* KEYBOARD HINT */
-  .kb-hint { font-size:11px; color:#444; text-align:center; margin-top:6px; letter-spacing:1px; }
+  .hidden { display: none; }
 </style>
 </head>
 <body>
 
-<!-- ───────────── START / SELECT SCREEN ───────────── -->
-<div class="screen active" id="startScreen">
-  <div class="title-block">
-    <div class="title-main">BRUTAL ARENA</div>
-    <div class="title-sub">Choose Your Fighting Style</div>
+<div class="header">
+  <div class="header-bg"></div>
+  <div class="header-inner">
+    <div class="header-sub">Shakil's Anime Vault</div>
+    <h1>95 Anime Watched</h1>
+    <p>Sorted by Genre — 13 Categories</p>
   </div>
-  <p class="screen-title">SELECT STYLE</p>
-  <div class="style-grid" id="styleGrid"></div>
-  <button class="btn btn-primary" id="startBtn" disabled onclick="startGame()">ENTER THE ARENA</button>
-  <p style="margin-top:12px;font-size:12px;color:#444;letter-spacing:2px;">KEYBOARD: A/S/D/F — SPACE — Q/W</p>
 </div>
 
-<!-- ───────────── GAME SCREEN ───────────── -->
-<div class="screen" id="gameScreen">
-  <div class="hud">
-    <div class="fighter-hud">
-      <div class="fighter-name" id="playerName">PLAYER</div>
-      <div class="hp-bar-wrap"><div class="hp-bar" id="playerHpBar" style="width:100%;background:var(--hp-green)"></div></div>
-      <div class="hp-label"><span id="playerHpVal">100</span> / 100 HP</div>
-    </div>
-    <div class="round-info">
-      <div class="round-num" id="roundLabel">ROUND 1</div>
-      <div class="timer-display" id="timerDisplay">60</div>
-      <div class="combo-display" id="comboDisplay">—</div>
-    </div>
-    <div class="fighter-hud enemy">
-      <div class="fighter-name" id="enemyName">ENEMY</div>
-      <div class="hp-bar-wrap"><div class="hp-bar" id="enemyHpBar" style="width:100%;background:var(--hp-green)"></div></div>
-      <div class="hp-label"><span id="enemyHpVal">100</span> / 100 HP</div>
-    </div>
-  </div>
-
-  <div class="arena-wrap">
-    <canvas id="arenaCanvas"></canvas>
-    <div class="arena-message" id="arenaMessage" style="display:none">
-      <div class="arena-message-text" id="arenaMessageText"></div>
-    </div>
-  </div>
-
-  <div class="control-panel">
-    <div>
-      <div class="move-group-label">ATTACKS</div>
-      <div class="move-row" id="attackRow"></div>
-      <div class="move-group-label" style="margin-top:8px">SPECIAL</div>
-      <div class="move-row" id="specialRow"></div>
-    </div>
-    <div>
-      <div class="move-group-label">DEFENSE</div>
-      <div class="move-row" id="defenseRow"></div>
-      <div class="move-group-label" style="margin-top:8px">MOBILITY</div>
-      <div class="move-row" id="mobilityRow"></div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
-      <div class="energy-bar-wrap">
-        <div class="energy-label">ENERGY</div>
-        <div class="energy-pips" id="energyPips"></div>
-      </div>
-      <div style="font-size:11px;color:#444;text-align:right">
-        KEYBOARD: A=Light S=Heavy D=Special<br>F=Block Q=Dodge W=Counter
-      </div>
-    </div>
-  </div>
-  <div class="kb-hint" id="statusMsg">FIGHT!</div>
-</div>
-
-<!-- ───────────── RESULT SCREEN ───────────── -->
-<div class="screen" id="resultScreen">
-  <div class="result-title" id="resultTitle">VICTORY</div>
-  <div class="result-stats" id="resultStats"></div>
-  <div style="display:flex;gap:16px;margin-top:24px">
-    <button class="btn btn-primary" onclick="showStart()">FIGHT AGAIN</button>
-  </div>
+<div class="container">
+  <input type="text" id="searchInput" placeholder="Search anime..." oninput="handleSearch(this.value)"/>
+  <div class="search-results hidden" id="searchResults"></div>
+  <div id="pillsContainer" class="pills"></div>
+  <div id="genreContainer"></div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════════════
-const STYLES = [
-  {
-    id:'brawler', name:'BRAWLER', icon:'🥊',
-    desc:'Raw power and relentless aggression. Hit hard, hit first.',
-    color:'#e01010',
-    stats:{speed:'med',damage:'high',defense:'low',energy:'med'},
-    moves:[
-      {id:'jab',       label:'JAB',        cat:'attack',  key:'A', dmg:[8,12],   cost:0,  cd:0.4, desc:'Quick punch combo',      kb:3},
-      {id:'haymaker',  label:'HAYMAKER',   cat:'attack',  key:'S', dmg:[20,28],  cost:0,  cd:1.8, desc:'Slow but brutal',        kb:12},
-      {id:'berserker', label:'BERSERK',    cat:'special', key:'D', dmg:[35,45],  cost:3,  cd:5,   desc:'3-hit fury — costs 3 energy', kb:8},
-      {id:'block',     label:'BLOCK',      cat:'defense', key:'F', dmg:[0,0],    cost:0,  cd:1,   desc:'Reduce next hit by 60%', kb:0},
-      {id:'charge',    label:'CHARGE',     cat:'mobility',key:'Q', dmg:[12,18],  cost:1,  cd:2,   desc:'Dash forward + hit',     kb:5},
-      {id:'counter',   label:'COUNTER',    cat:'defense', key:'W', dmg:[18,24],  cost:2,  cd:4,   desc:'Punish next enemy attack',kb:10},
-    ]
-  },
-  {
-    id:'ninja', name:'NINJA', icon:'🥷',
-    desc:'Speed and deception. Strike from shadows, vanish instantly.',
-    color:'#7b2fff',
-    stats:{speed:'high',damage:'med',defense:'med',energy:'high'},
-    moves:[
-      {id:'slash',     label:'SLASH',      cat:'attack',  key:'A', dmg:[10,14],  cost:0,  cd:0.5, desc:'Twin blade strike',      kb:2},
-      {id:'shuriken',  label:'SHURIKEN',   cat:'attack',  key:'S', dmg:[14,18],  cost:1,  cd:1.5, desc:'Ranged throw',           kb:1},
-      {id:'shadowstep',label:'SHADOW',     cat:'special', key:'D', dmg:[28,38],  cost:3,  cd:5,   desc:'Teleport behind + slash',kb:6},
-      {id:'dodge',     label:'DODGE',      cat:'mobility',key:'Q', dmg:[0,0],    cost:0,  cd:1.2, desc:'Evade and gain energy',  kb:0},
-      {id:'smokescreen',label:'SMOKE',     cat:'defense', key:'F', dmg:[0,0],    cost:2,  cd:4,   desc:'Blind enemy — miss next hit',kb:0},
-      {id:'counter',   label:'RIPOSTE',    cat:'defense', key:'W', dmg:[16,22],  cost:2,  cd:3.5, desc:'Parry and counter',      kb:8},
-    ]
-  },
-  {
-    id:'mage', name:'MAGE', icon:'🔮',
-    desc:'Arcane power fueled by energy. Master the mana or fall.',
-    color:'#00ffe0',
-    stats:{speed:'low',damage:'high',defense:'low',energy:'high'},
-    moves:[
-      {id:'spark',     label:'SPARK',      cat:'attack',  key:'A', dmg:[7,11],   cost:0,  cd:0.6, desc:'Zap foe + gain 1 energy',kb:1},
-      {id:'fireball',  label:'FIREBALL',   cat:'attack',  key:'S', dmg:[18,25],  cost:2,  cd:2,   desc:'Charged AoE blast',      kb:5},
-      {id:'meteor',    label:'METEOR',     cat:'special', key:'D', dmg:[40,55],  cost:4,  cd:7,   desc:'Massive meteor — full energy required',kb:15},
-      {id:'shield',    label:'BARRIER',    cat:'defense', key:'F', dmg:[0,0],    cost:2,  cd:4,   desc:'Block all damage for 2s', kb:0},
-      {id:'blink',     label:'BLINK',      cat:'mobility',key:'Q', dmg:[0,0],    cost:1,  cd:2,   desc:'Teleport away',          kb:0},
-      {id:'lifedrain', label:'DRAIN',      cat:'special', key:'W', dmg:[15,22],  cost:2,  cd:5,   desc:'Steal HP from enemy',    kb:3},
-    ]
-  },
-  {
-    id:'wrestler', name:'GRAPPLER', icon:'💪',
-    desc:'Command the ground. Grabs and throws deal massive damage.',
-    color:'#f5a623',
-    stats:{speed:'low',damage:'high',defense:'high',energy:'low'},
-    moves:[
-      {id:'grab',      label:'GRAB',       cat:'attack',  key:'A', dmg:[10,16],  cost:0,  cd:0.8, desc:'Grapple hold',           kb:4},
-      {id:'suplex',    label:'SUPLEX',     cat:'attack',  key:'S', dmg:[22,30],  cost:1,  cd:2.5, desc:'German suplex',          kb:10},
-      {id:'groundslam',label:'SLAM',       cat:'special', key:'D', dmg:[38,48],  cost:3,  cd:6,   desc:'Ground pound — huge knockback',kb:20},
-      {id:'ironwall',  label:'IRON WALL',  cat:'defense', key:'F', dmg:[0,0],    cost:0,  cd:2,   desc:'Massive defense stance',  kb:0},
-      {id:'pounce',    label:'POUNCE',     cat:'mobility',key:'Q', dmg:[8,14],   cost:1,  cd:2,   desc:'Leap + body slam',        kb:6},
-      {id:'absorb',    label:'ABSORB',     cat:'defense', key:'W', dmg:[0,0],    cost:0,  cd:5,   desc:'Convert damage to energy',kb:0},
-    ]
-  },
-  {
-    id:'samurai', name:'SAMURAI', icon:'⚔️',
-    desc:'Precision and timing. One perfect strike ends a fight.',
-    color:'#ff6b35',
-    stats:{speed:'med',damage:'high',defense:'med',energy:'med'},
-    moves:[
-      {id:'iaijutsu',  label:'DRAW CUT',   cat:'attack',  key:'A', dmg:[11,16],  cost:0,  cd:0.7, desc:'Lightning-fast draw',    kb:3},
-      {id:'cleave',    label:'CLEAVE',     cat:'attack',  key:'S', dmg:[20,28],  cost:1,  cd:2,   desc:'Wide slash arc',         kb:8},
-      {id:'musou',     label:'MUSOU',      cat:'special', key:'D', dmg:[45,60],  cost:4,  cd:8,   desc:'Ultimate sword technique',kb:18},
-      {id:'deflect',   label:'DEFLECT',    cat:'defense', key:'F', dmg:[0,0],    cost:1,  cd:2,   desc:'Deflect and stun enemy', kb:0},
-      {id:'sidestep',  label:'SIDESTEP',   cat:'mobility',key:'Q', dmg:[0,0],    cost:0,  cd:1,   desc:'Quick evade',            kb:0},
-      {id:'iai',       label:'PERFECT CUT',cat:'defense', key:'W', dmg:[25,35],  cost:3,  cd:5,   desc:'Counter with lethal strike',kb:12},
-    ]
-  },
-  {
-    id:'gunner', name:'GUNNER', icon:'🔫',
-    desc:'Keep distance. Outrange enemies with bullet-based combos.',
-    color:'#26a69a',
-    stats:{speed:'high',damage:'med',defense:'low',energy:'med'},
-    moves:[
-      {id:'shot',      label:'SHOT',       cat:'attack',  key:'A', dmg:[9,13],   cost:0,  cd:0.5, desc:'Quick pistol shot',      kb:2},
-      {id:'burst',     label:'BURST',      cat:'attack',  key:'S', dmg:[20,26],  cost:1,  cd:2,   desc:'3-round burst fire',     kb:4},
-      {id:'airburst',  label:'AIR BURST',  cat:'special', key:'D', dmg:[30,42],  cost:3,  cd:6,   desc:'Explosive round — huge splash',kb:12},
-      {id:'roll',      label:'ROLL',       cat:'mobility',key:'Q', dmg:[0,0],    cost:0,  cd:1,   desc:'Combat roll away',       kb:0},
-      {id:'suppfire',  label:'SUPPRESS',   cat:'defense', key:'F', dmg:[6,9],    cost:1,  cd:3,   desc:'Cover fire — slow enemy 50%',kb:1},
-      {id:'rapidfire', label:'RAPID FIRE', cat:'special', key:'W', dmg:[22,32],  cost:2,  cd:5,   desc:'Spam 5 shots',           kb:3},
-    ]
+const animeData = [
+  { id: 1, title: "Classroom of the Elite", genres: ["Psychological", "Drama"] },
+  { id: 7, title: "Steins;Gate", genres: ["Sci-Fi", "Psychological", "Thriller"] },
+  { id: 12, title: "Terror in Resonance", genres: ["Psychological", "Thriller"] },
+  { id: 15, title: "Death Note", genres: ["Psychological", "Thriller"] },
+  { id: 16, title: "Monster", genres: ["Psychological", "Thriller", "Mystery"] },
+  { id: 20, title: "Another", genres: ["Horror", "Mystery", "Psychological"] },
+  { id: 22, title: "Death Parade", genres: ["Psychological", "Drama"] },
+  { id: 29, title: "The Paranoia Agent", genres: ["Psychological", "Mystery", "Thriller"] },
+  { id: 39, title: "Tomodachi Game", genres: ["Psychological", "Thriller"] },
+  { id: 40, title: "The Tatami Galaxy", genres: ["Psychological", "Slice of Life", "Surreal"] },
+  { id: 68, title: "Serial Experiments Lain", genres: ["Psychological", "Sci-Fi", "Surreal"] },
+  { id: 69, title: "Sonny Boy", genres: ["Psychological", "Surreal", "Sci-Fi"] },
+  { id: 89, title: "The Future Diary", genres: ["Psychological", "Thriller", "Action"] },
+  { id: 91, title: "Pluto", genres: ["Psychological", "Sci-Fi", "Thriller"] },
+  { id: 13, title: "Uzumaki", genres: ["Horror", "Psychological"] },
+  { id: 25, title: "Corpse Party: Tortured Souls", genres: ["Horror", "Gore"] },
+  { id: 26, title: "Devilman Crybaby", genres: ["Horror", "Dark Fantasy", "Action"] },
+  { id: 28, title: "The Flowers of Evil", genres: ["Psychological", "Drama", "Dark"] },
+  { id: 34, title: "Takopi's Original Sin", genres: ["Psychological", "Dark Drama"] },
+  { id: 51, title: "Shiki", genres: ["Horror", "Mystery", "Supernatural"] },
+  { id: 54, title: "Elfen Lied", genres: ["Horror", "Dark Drama", "Action"] },
+  { id: 63, title: "Genocyber", genres: ["Horror", "Gore", "Sci-Fi"] },
+  { id: 3, title: "Sakamoto Days", genres: ["Action", "Comedy"] },
+  { id: 4, title: "Blue Lock", genres: ["Action", "Sports"] },
+  { id: 5, title: "Chainsaw Man", genres: ["Action", "Dark Fantasy"] },
+  { id: 9, title: "Naruto", genres: ["Action", "Adventure", "Shonen"] },
+  { id: 10, title: "Wind Breaker", genres: ["Action", "Street"] },
+  { id: 14, title: "Attack on Titan", genres: ["Action", "Dark Fantasy", "Thriller"] },
+  { id: 17, title: "Jujutsu Kaisen", genres: ["Action", "Dark Fantasy", "Shonen"] },
+  { id: 18, title: "Tokyo Ghoul", genres: ["Action", "Dark Fantasy", "Psychological"] },
+  { id: 30, title: "Afro Samurai", genres: ["Action", "Samurai"] },
+  { id: 31, title: "Gachiakuta", genres: ["Action", "Adventure"] },
+  { id: 42, title: "Code Geass: Lelouch of the Rebellion", genres: ["Action", "Mecha", "Psychological"] },
+  { id: 43, title: "Parasyte: The Maxim", genres: ["Action", "Sci-Fi", "Psychological"] },
+  { id: 44, title: "Dandadan", genres: ["Action", "Supernatural", "Comedy"] },
+  { id: 50, title: "The Kingdoms of Ruin", genres: ["Action", "Dark Fantasy"] },
+  { id: 56, title: "Hellsing Ultimate", genres: ["Action", "Horror", "Supernatural"] },
+  { id: 57, title: "Devil May Cry (Netflix)", genres: ["Action", "Supernatural"] },
+  { id: 62, title: "The God of High School", genres: ["Action", "Martial Arts"] },
+  { id: 67, title: "One Punch Man", genres: ["Action", "Comedy", "Superhero"] },
+  { id: 72, title: "Mashle: Magic and Muscles", genres: ["Action", "Comedy", "Shonen"] },
+  { id: 88, title: "Drifters", genres: ["Action", "Historical Fantasy"] },
+  { id: 93, title: "Soul Eater", genres: ["Action", "Dark Fantasy", "Comedy"] },
+  { id: 94, title: "Fire Force", genres: ["Action", "Dark Fantasy", "Supernatural"] },
+  { id: 8, title: "Solo Leveling", genres: ["Action", "Fantasy", "Sci-Fi"] },
+  { id: 21, title: "Cyberpunk: Edgerunners", genres: ["Sci-Fi", "Cyberpunk", "Drama"] },
+  { id: 33, title: "Neon Genesis Evangelion", genres: ["Mecha", "Psychological", "Sci-Fi"] },
+  { id: 47, title: "Texhnolyze", genres: ["Sci-Fi", "Psychological", "Dark"] },
+  { id: 71, title: "Takt Op. Destiny", genres: ["Sci-Fi", "Action", "Music"] },
+  { id: 74, title: "Akudama Drive", genres: ["Sci-Fi", "Action", "Thriller"] },
+  { id: 80, title: "ID: Invaded", genres: ["Sci-Fi", "Mystery", "Psychological"] },
+  { id: 2, title: "My Dress-Up Darling", genres: ["Romance", "Slice of Life", "Comedy"] },
+  { id: 35, title: "ReLIFE + Kanketsu-hen", genres: ["Romance", "Slice of Life", "Drama"] },
+  { id: 37, title: "Alya Sometimes Hides Her Feelings in Russian", genres: ["Romance", "Comedy"] },
+  { id: 38, title: "Tomo-Chan is a Girl!", genres: ["Romance", "Comedy"] },
+  { id: 48, title: "Anohana: The Flower We Saw That Day", genres: ["Drama", "Romance", "Supernatural"] },
+  { id: 52, title: "The Fragrant Flower Blooms with Dignity", genres: ["Romance", "Slice of Life"] },
+  { id: 58, title: "Mechanical Marie", genres: ["Romance", "Slice of Life"] },
+  { id: 70, title: "Your Lie in April", genres: ["Romance", "Drama", "Music"] },
+  { id: 75, title: "Buddy Daddies", genres: ["Action", "Comedy"] },
+  { id: 82, title: "Hokkaido Gals Are Super Adorable!", genres: ["Romance", "Comedy", "Slice of Life"] },
+  { id: 83, title: "Paradise Kiss", genres: ["Shoujo", "Romance", "Drama"] },
+  { id: 85, title: "More Than a Married Couple, But Not Lovers", genres: ["Romance", "Comedy"] },
+  { id: 90, title: "The Angel Next Door Spoils Me Rotten", genres: ["Romance", "Slice of Life"] },
+  { id: 92, title: "NANA", genres: ["Shoujo", "Romance", "Drama", "Music"] },
+  { id: 53, title: "Megalo Box", genres: ["Sports", "Action", "Drama"] },
+  { id: 61, title: "Overtake!!", genres: ["Sports", "Drama"] },
+  { id: 76, title: "Initial D", genres: ["Sports", "Racing", "Drama"] },
+  { id: 79, title: "MF Ghost", genres: ["Sports", "Racing"] },
+  { id: 86, title: "Ping Pong the Animation", genres: ["Sports", "Drama"] },
+  { id: 95, title: "Tomorrow's Joe", genres: ["Sports", "Drama"] },
+  { id: 11, title: "Tokyo Revengers", genres: ["Action", "Crime", "Supernatural"] },
+  { id: 19, title: "My Home Hero", genres: ["Thriller", "Crime", "Drama"] },
+  { id: 27, title: "91 Days", genres: ["Crime", "Thriller", "Historical"] },
+  { id: 41, title: "Lord of the Mysteries", genres: ["Mystery", "Dark Fantasy", "Supernatural"] },
+  { id: 64, title: "Blue Literature / Aoi Bungaku Series", genres: ["Drama", "Psychological", "Literary"] },
+  { id: 66, title: "The Millionaire Detective – Balance: Unlimited", genres: ["Mystery", "Action", "Comedy"] },
+  { id: 6, title: "Spy x Family", genres: ["Action", "Comedy"] },
+  { id: 32, title: "Kaiju No. 8", genres: ["Action", "Supernatural", "Sci-Fi"] },
+  { id: 45, title: "Petshop of Horrors", genres: ["Horror", "Supernatural", "Mystery"] },
+  { id: 46, title: "Dororo", genres: ["Historical", "Supernatural", "Action"] },
+  { id: 60, title: "The Summer Hikaru Died", genres: ["Supernatural", "Horror", "Drama"] },
+  { id: 73, title: "Heavenly Delusion", genres: ["Sci-Fi", "Supernatural", "Thriller"] },
+  { id: 24, title: "Super Cube", genres: ["Action", "Sci-Fi", "Dark Fantasy"] },
+  { id: 49, title: "Kabaneri of the Iron Fortress", genres: ["Action", "Post-Apocalyptic", "Steampunk"] },
+  { id: 77, title: "Darling in the FranXX", genres: ["Mecha", "Romance", "Sci-Fi"] },
+  { id: 84, title: "Zom 100: Bucket List of the Dead", genres: ["Comedy", "Post-Apocalyptic", "Action"] },
+  { id: 36, title: "Golden Boy", genres: ["Comedy", "Ecchi"] },
+  { id: 55, title: "Shimoneta", genres: ["Comedy", "Ecchi"] },
+  { id: 59, title: "Bakuon!!", genres: ["Comedy", "Slice of Life"] },
+  { id: 23, title: "Erased", genres: ["Mystery", "Thriller", "Drama"] },
+  { id: 78, title: "Cowboy Bebop", genres: ["Sci-Fi", "Action", "Neo-Noir"] },
+  { id: 81, title: "Domestic Girlfriend", genres: ["Romance", "Drama", "Ecchi"] },
+  { id: 87, title: "FLCL", genres: ["Surreal", "Sci-Fi", "Coming-of-Age"] },
+  { id: 65, title: "Lookism", genres: ["Action", "Drama", "School"] },
+];
+
+const GENRE_GROUPS = [
+  { label: "🧠 Psychological & Thriller", key: "Psychological", color: "#8b5cf6", bg: "rgba(139,92,246,0.08)", border: "rgba(139,92,246,0.35)",
+    match: g => g.includes("Psychological") || (g.includes("Thriller") && !g.includes("Action")) },
+  { label: "💀 Horror & Dark", key: "Horror", color: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.35)",
+    match: g => g.includes("Horror") || g.includes("Dark") || g.includes("Gore") },
+  { label: "⚔️ Action & Battle Shonen", key: "Action", color: "#f97316", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.35)",
+    match: g => g.includes("Action") && !g.includes("Sci-Fi") && !g.includes("Sports") && !g.includes("Crime") && !g.includes("Comedy") },
+  { label: "🚀 Sci-Fi & Cyberpunk", key: "Sci-Fi", color: "#06b6d4", bg: "rgba(6,182,212,0.08)", border: "rgba(6,182,212,0.35)",
+    match: g => (g.includes("Sci-Fi") || g.includes("Mecha") || g.includes("Cyberpunk")) && !g.includes("Action") },
+  { label: "💕 Romance & Slice of Life", key: "Romance", color: "#ec4899", bg: "rgba(236,72,153,0.08)", border: "rgba(236,72,153,0.35)",
+    match: g => (g.includes("Romance") || g.includes("Slice of Life")) && !g.includes("Shoujo") },
+  { label: "🌸 Shoujo & Romance Drama", key: "Shoujo", color: "#f9a8d4", bg: "rgba(249,168,212,0.08)", border: "rgba(249,168,212,0.35)",
+    match: g => g.includes("Shoujo") },
+  { label: "🏆 Sports", key: "Sports", color: "#22c55e", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.35)",
+    match: g => g.includes("Sports") || g.includes("Racing") },
+  { label: "🔍 Crime & Mystery", key: "Mystery", color: "#eab308", bg: "rgba(234,179,8,0.08)", border: "rgba(234,179,8,0.35)",
+    match: g => (g.includes("Crime") || g.includes("Mystery")) && !g.includes("Horror") },
+  { label: "👻 Supernatural & Fantasy", key: "Supernatural", color: "#a78bfa", bg: "rgba(167,139,250,0.08)", border: "rgba(167,139,250,0.35)",
+    match: g => g.includes("Supernatural") || g.includes("Fantasy") },
+  { label: "🌍 Post-Apocalyptic & Dark Fantasy", key: "Post-Apocalyptic", color: "#78716c", bg: "rgba(120,113,108,0.08)", border: "rgba(120,113,108,0.35)",
+    match: g => g.includes("Post-Apocalyptic") || g.includes("Steampunk") },
+  { label: "😂 Comedy & Ecchi", key: "Comedy", color: "#facc15", bg: "rgba(250,204,21,0.08)", border: "rgba(250,204,21,0.35)",
+    match: g => (g.includes("Comedy") || g.includes("Ecchi")) && !g.includes("Action") && !g.includes("Romance") && !g.includes("Sports") },
+  { label: "🎨 Classics & Artsy", key: "Artsy", color: "#f472b6", bg: "rgba(244,114,182,0.08)", border: "rgba(244,114,182,0.35)",
+    match: g => g.includes("Neo-Noir") || g.includes("Surreal") || g.includes("Artsy") || g.includes("Literary") || g.includes("Coming-of-Age") },
+  { label: "📱 Manhwa / Webtoon", key: "Manhwa", color: "#34d399", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.35)",
+    match: g => g.includes("School") && g.includes("Drama") },
+];
+
+function assignGroup(anime) {
+  for (const group of GENRE_GROUPS) {
+    if (group.match(anime.genres)) return group.key;
   }
-];
+  return "Action";
+}
 
-const ENEMIES = [
-  { name:'TITAN',    color:'#e53935', hp:100, speed:0.3, aggressiveness:0.7, style:'brawler' },
-  { name:'PHANTOM',  color:'#7e57c2', hp:100, speed:0.6, aggressiveness:0.5, style:'ninja'   },
-  { name:'WARLORD',  color:'#f57c00', hp:120, speed:0.4, aggressiveness:0.8, style:'wrestler'},
-  { name:'SPECTER',  color:'#26c6da', hp:85,  speed:0.7, aggressiveness:0.4, style:'gunner'  },
-];
+const grouped = {};
+GENRE_GROUPS.forEach(g => grouped[g.key] = []);
+animeData.forEach(a => grouped[assignGroup(a)].push(a));
 
-// ═══════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════
-let selectedStyle = null;
-let game = null;
+let activeGroup = null;
 
-// ═══════════════════════════════════════════════════
-// STYLE SELECT
-// ═══════════════════════════════════════════════════
-function buildStyleGrid() {
-  const grid = document.getElementById('styleGrid');
-  grid.innerHTML = '';
-  STYLES.forEach(s => {
-    const card = document.createElement('div');
-    card.className = 'style-card';
-    card.innerHTML = `
-      <span class="icon">${s.icon}</span>
-      <div class="sname">${s.name}</div>
-      <div class="sdesc">${s.desc}</div>
-      <div class="stats">
-        <span class="stat-pill ${s.stats.speed==='high'?'high':s.stats.speed==='med'?'med':'low'}">SPD:${s.stats.speed.toUpperCase()}</span>
-        <span class="stat-pill ${s.stats.damage==='high'?'high':s.stats.damage==='med'?'med':'low'}">DMG:${s.stats.damage.toUpperCase()}</span>
-        <span class="stat-pill ${s.stats.defense==='high'?'high':s.stats.defense==='med'?'med':'low'}">DEF:${s.stats.defense.toUpperCase()}</span>
-      </div>`;
-    card.onclick = () => {
-      document.querySelectorAll('.style-card').forEach(c=>c.classList.remove('selected'));
-      card.classList.add('selected');
-      selectedStyle = s;
-      document.getElementById('startBtn').disabled = false;
-    };
-    grid.appendChild(card);
+function buildPills() {
+  const container = document.getElementById('pillsContainer');
+  let html = `<button class="pill active-all" onclick="filterGroup(null, this)">All</button>`;
+  GENRE_GROUPS.forEach(g => {
+    const count = grouped[g.key]?.length || 0;
+    html += `<button class="pill" onclick="filterGroup('${g.key}', this)" 
+      style="color:${g.color}" data-key="${g.key}">${g.label} <span style="opacity:0.7">(${count})</span></button>`;
   });
-}
-buildStyleGrid();
-
-function showStart() {
-  if(game){ game.destroy(); game=null; }
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('startScreen').classList.add('active');
-  document.querySelectorAll('.style-card').forEach(c=>c.classList.remove('selected'));
-  selectedStyle=null;
-  document.getElementById('startBtn').disabled=true;
+  container.innerHTML = html;
 }
 
-// ═══════════════════════════════════════════════════
-// GAME CLASS
-// ═══════════════════════════════════════════════════
-function startGame() {
-  if(!selectedStyle) return;
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('gameScreen').classList.add('active');
-  const enemy = ENEMIES[Math.floor(Math.random()*ENEMIES.length)];
-  game = new FightGame(selectedStyle, enemy);
-  game.init();
+function filterGroup(key, btn) {
+  activeGroup = key;
+  document.querySelectorAll('.pill').forEach(p => {
+    p.classList.remove('active-all');
+    p.style.background = 'rgba(255,255,255,0.03)';
+    p.style.borderColor = 'rgba(255,255,255,0.08)';
+    p.style.fontWeight = '400';
+  });
+  if (key === null) {
+    btn.classList.add('active-all');
+  } else {
+    const group = GENRE_GROUPS.find(g => g.key === key);
+    btn.style.background = group.bg;
+    btn.style.borderColor = group.border;
+    btn.style.fontWeight = '700';
+  }
+  buildGenres();
 }
 
-class FightGame {
-  constructor(style, enemyDef) {
-    this.style     = style;
-    this.enemyDef  = enemyDef;
-    this.playerHp  = 100;
-    this.enemyHp   = enemyDef.hp;
-    this.enemyMaxHp= enemyDef.hp;
-    this.energy    = 0;
-    this.maxEnergy = 5;
-    this.combo     = 0;
-    this.comboTimer= null;
-    this.blocked   = false;
-    this.shielded  = false;
-    this.counterReady = false;
-    this.enemyStunned = false;
-    this.enemyBlinded = false;
-    this.roundTime = 60;
-    this.timerInterval = null;
-    this.cooldowns = {};
-    this.active    = true;
-    this.round     = 1;
-    this.enemyDelay= null;
-    // canvas
-    this.canvas = document.getElementById('arenaCanvas');
-    this.ctx    = this.canvas.getContext('2d');
-    // fighter positions
-    this.playerX = 0.25;
-    this.enemyX  = 0.75;
-    this.playerAnim = null;
-    this.enemyAnim  = null;
-    this.shake = 0;
-    this.effects = [];
-  }
-
-  destroy() {
-    clearInterval(this.timerInterval);
-    clearTimeout(this.enemyDelay);
-    this.active = false;
-    window.removeEventListener('keydown', this._keyHandler);
-  }
-
-  init() {
-    this.buildUI();
-    this.startTimer();
-    this.scheduleEnemyAction();
-    this.resizeCanvas();
-    window.addEventListener('resize', ()=>this.resizeCanvas());
-    this._keyHandler = (e) => this.handleKey(e.key.toUpperCase());
-    window.addEventListener('keydown', this._keyHandler);
-    this.drawLoop();
-    this.showMessage('FIGHT!', 1200);
-  }
-
-  resizeCanvas() {
-    const wrap = this.canvas.parentElement;
-    this.canvas.width  = wrap.clientWidth;
-    this.canvas.height = wrap.clientHeight;
-  }
-
-  // ── BUILD MOVE BUTTONS ──
-  buildUI() {
-    document.getElementById('playerName').textContent = this.style.name;
-    document.getElementById('enemyName').textContent  = this.enemyDef.name;
-    document.getElementById('roundLabel').textContent = `ROUND ${this.round}`;
-
-    const attacks  = this.style.moves.filter(m=>m.cat==='attack');
-    const specials = this.style.moves.filter(m=>m.cat==='special');
-    const defense  = this.style.moves.filter(m=>m.cat==='defense');
-    const mobility = this.style.moves.filter(m=>m.cat==='mobility');
-
-    this.renderMoveRow('attackRow',  attacks,  'attack');
-    this.renderMoveRow('specialRow', specials, 'special');
-    this.renderMoveRow('defenseRow', defense,  'defense');
-    this.renderMoveRow('mobilityRow',mobility, 'mobility');
-
-    this.buildEnergyPips();
-    this.updateHUD();
-  }
-
-  renderMoveRow(rowId, moves, cat) {
-    const row = document.getElementById(rowId);
-    row.innerHTML='';
-    moves.forEach(m => {
-      const btn = document.createElement('button');
-      btn.className = `move-btn ${cat}`;
-      btn.id = `btn_${m.id}`;
-      btn.title = `${m.desc}${m.cost?` | ${m.cost} energy`:''}`;
-      btn.innerHTML = `${m.label} <small style="opacity:.6;font-size:10px">[${m.key}]</small>`;
-      btn.onclick = () => this.useMove(m);
-      row.appendChild(btn);
+function buildGenres() {
+  const container = document.getElementById('genreContainer');
+  let html = '';
+  GENRE_GROUPS.filter(g => !activeGroup || activeGroup === g.key).forEach(group => {
+    const list = grouped[group.key] || [];
+    if (!list.length) return;
+    html += `<div class="genre-section">
+      <div class="genre-header" style="border-bottom:1px solid ${group.border}">
+        <h2 class="genre-title" style="color:${group.color}">${group.label}</h2>
+        <span class="genre-count" style="background:${group.bg};color:${group.color};border:1px solid ${group.border}">${list.length} anime</span>
+      </div>
+      <div class="anime-grid">`;
+    list.forEach(anime => {
+      html += `<div class="anime-card" style="background:${group.bg};border:1px solid ${group.border}">
+        <div class="anime-row">
+          <span class="anime-num" style="color:${group.color}">#${anime.id}</span>
+          <span class="anime-title">${anime.title}</span>
+        </div>
+        <div class="tag-row">${anime.genres.map(g => `<span class="tag">${g}</span>`).join('')}</div>
+      </div>`;
     });
-  }
-
-  buildEnergyPips() {
-    const pips = document.getElementById('energyPips');
-    pips.innerHTML='';
-    for(let i=0;i<this.maxEnergy;i++){
-      const p=document.createElement('div');
-      p.className='energy-pip';
-      p.id=`ep_${i}`;
-      pips.appendChild(p);
-    }
-  }
-
-  // ── TIMER ──
-  startTimer() {
-    this.roundTime = 60;
-    this.timerInterval = setInterval(()=>{
-      if(!this.active) return;
-      this.roundTime--;
-      document.getElementById('timerDisplay').textContent = this.roundTime;
-      if(this.roundTime<=0) this.endRound();
-    }, 1000);
-  }
-
-  endRound() {
-    clearInterval(this.timerInterval);
-    // judge by HP
-    if(this.playerHp > this.enemyHp) this.endGame(true, 'TIME OUT — YOU WIN!');
-    else if(this.enemyHp > this.playerHp) this.endGame(false, 'TIME OUT — YOU LOSE!');
-    else this.endGame(false, 'DRAW!');
-  }
-
-  // ── KEYBOARD ──
-  handleKey(k) {
-    if(!this.active) return;
-    for(const m of this.style.moves){
-      if(m.key === k){ this.useMove(m); return; }
-    }
-  }
-
-  // ── USE MOVE ──
-  useMove(move) {
-    if(!this.active) return;
-    if(this.cooldowns[move.id] > 0) return;
-    if(this.energy < move.cost){ this.status(`Need ${move.cost} energy!`); return; }
-
-    this.energy -= move.cost;
-    this.setCooldown(move);
-
-    // Special logic per category
-    if(move.cat==='attack' || move.cat==='special'){
-      this.executeAttack(move);
-    } else if(move.cat==='defense'){
-      this.executeDefense(move);
-    } else if(move.cat==='mobility'){
-      this.executeMobility(move);
-    }
-
-    this.updateHUD();
-  }
-
-  executeAttack(move) {
-    if(this.enemyStunned || !this.enemyBlinded){
-      let dmg = move.dmg[0] + Math.floor(Math.random()*(move.dmg[1]-move.dmg[0]+1));
-      // counter-attack bonus
-      if(this.counterReady){ dmg = Math.round(dmg*1.6); this.counterReady=false; this.status('COUNTER HIT! x1.6'); }
-      this.dealDamageToEnemy(dmg, move);
-    }
-
-    // Spark / gunner shot gain energy
-    if(move.id==='spark'||move.id==='shot'){ this.gainEnergy(1); }
-    // Lifedrain
-    if(move.id==='lifedrain'){
-      const dmg2=move.dmg[0]+Math.floor(Math.random()*(move.dmg[1]-move.dmg[0]+1));
-      const healed=Math.round(dmg2*0.6);
-      this.playerHp=Math.min(100,this.playerHp+healed);
-      this.floatText(`+${healed} HEAL`, this.playerX, '#00e676', 22);
-    }
-    // Rapid fire — 5 hits
-    if(move.id==='rapidfire'){
-      let extra=4;
-      const fireMore=setInterval(()=>{
-        if(!this.active||extra<=0){ clearInterval(fireMore); return; }
-        const d=move.dmg[0]+Math.floor(Math.random()*(move.dmg[1]/5-move.dmg[0]/5+1));
-        this.dealDamageToEnemy(Math.round(d/4), move);
-        extra--;
-      },120);
-    }
-
-    this.triggerCombo();
-    this.animatePlayer('attack', move.kb||5);
-  }
-
-  executeDefense(move) {
-    if(move.id==='block'||move.id==='ironwall'){ this.blocked=true; setTimeout(()=>{this.blocked=false;},move.id==='ironwall'?2500:1500); this.floatText('BLOCKING', this.playerX,'#7bb3ff',18); }
-    if(move.id==='shield'){ this.shielded=true; setTimeout(()=>{this.shielded=false;},2000); this.floatText('SHIELDED', this.playerX,'#00ffe0',18); }
-    if(move.id==='counter'||move.id==='deflect'||move.id==='iai'){ this.counterReady=true; setTimeout(()=>{this.counterReady=false;},move.cd*1000); this.floatText('COUNTER READY!',this.playerX,'#ffea00',18); }
-    if(move.id==='smokescreen'){ this.enemyBlinded=true; setTimeout(()=>{this.enemyBlinded=false;},3000); this.floatText('ENEMY BLINDED!',this.enemyX,'#7b2fff',18); }
-    if(move.id==='absorb'){ /* handled on hit */ this.floatText('ABSORB READY',this.playerX,'#f5a623',18); }
-    if(move.id==='suppfire'){
-      const sd=6+Math.floor(Math.random()*4);
-      this.dealDamageToEnemy(sd, move);
-      this.floatText('SUPPRESSED',this.enemyX,'#26a69a',16);
-    }
-  }
-
-  executeMobility(move) {
-    if(move.id==='dodge'||move.id==='roll'||move.id==='blink'||move.id==='sidestep'){
-      this.dodging=true;
-      this.gainEnergy(move.id==='dodge'?1:0);
-      setTimeout(()=>{this.dodging=false;},700);
-      this.floatText('EVADE!', this.playerX,'#4caf50',18);
-    }
-    if(move.id==='charge'||move.id==='pounce'){
-      const d=move.dmg[0]+Math.floor(Math.random()*(move.dmg[1]-move.dmg[0]+1));
-      this.dealDamageToEnemy(d, move);
-      this.animatePlayer('dash', move.kb);
-    }
-    if(move.id==='shadowstep'){
-      const d=move.dmg[0]+Math.floor(Math.random()*(move.dmg[1]-move.dmg[0]+1));
-      this.dealDamageToEnemy(d, move);
-      this.floatText('SHADOWSTEP!', this.enemyX,'#7b2fff',20);
-      this.animatePlayer('dash', 6);
-    }
-  }
-
-  dealDamageToEnemy(dmg, move) {
-    // enemy dodge chance
-    if(Math.random()<0.05){ this.floatText('MISS', this.enemyX,'#888',16); return; }
-    this.enemyHp = Math.max(0, this.enemyHp - dmg);
-    this.floatText(`-${dmg}`, this.enemyX, move.cat==='special'?'#ffea00':'#ff5252', move.cat==='special'?28:22);
-    this.shake = 6;
-    this.effects.push({type:'hit', x:this.enemyX, y:0.5, t:0, color:move.cat==='special'?'#ffea00':'#ff5252'});
-    this.status(`${move.label} — ${dmg} dmg!`);
-    if(this.enemyHp<=0) this.endGame(true);
-    this.updateHUD();
-    // enemy stun on heavy hits
-    if(move.kb>=10){ this.enemyStunned=true; setTimeout(()=>this.enemyStunned=false,800); }
-  }
-
-  // ── ENEMY AI ──
-  scheduleEnemyAction() {
-    if(!this.active) return;
-    const delay = 1200 + Math.random()*1800 * (1-this.enemyDef.aggressiveness*0.4);
-    this.enemyDelay = setTimeout(()=>{
-      if(!this.active) return;
-      this.enemyAttack();
-      this.scheduleEnemyAction();
-    }, delay);
-  }
-
-  enemyAttack() {
-    if(this.enemyStunned){ return; }
-    // pick random damage
-    const baseDmg = 8 + Math.floor(Math.random()*14);
-    const isBig = Math.random()<0.25;
-    const dmg = isBig ? baseDmg+12 : baseDmg;
-    const moveName = isBig ? 'HEAVY BLOW' : ['ATTACK','STRIKE','KICK','SLAM'][Math.floor(Math.random()*4)];
-
-    // Player can dodge
-    if(this.dodging){ this.floatText('DODGED!', this.playerX,'#4caf50',20); return; }
-    // Blocked
-    if(this.blocked){ const b=Math.round(dmg*0.4); this.takeDamage(b, moveName, true); return; }
-    // Shielded
-    if(this.shielded){ this.floatText('BLOCKED!', this.playerX,'#00ffe0',20); this.shielded=false; return; }
-    // Absorb
-    if(this.style.id==='wrestler' && this.blocked){ this.gainEnergy(2); this.floatText('ABSORBED +2⚡',this.playerX,'#f5a623',18); return; }
-    // Blinded miss
-    if(this.enemyBlinded && Math.random()<0.6){ this.floatText('ENEMY MISSED!',this.enemyX,'#888',16); return; }
-    // Counter triggered
-    if(this.counterReady){ const cd=Math.round(dmg*0.5); this.takeDamage(cd,moveName,false); const cr=12+Math.floor(Math.random()*10); this.dealDamageToEnemy(cr,{cat:'special',kb:6}); this.floatText('COUNTER!',this.playerX,'#ffea00',22); this.counterReady=false; return; }
-
-    this.takeDamage(dmg, moveName, false);
-    this.animateEnemy('attack');
-  }
-
-  takeDamage(dmg, moveName, wasBlocked) {
-    this.playerHp = Math.max(0, this.playerHp - dmg);
-    this.floatText(`-${dmg}${wasBlocked?' (BLOCKED)':''}`, this.playerX,'#ff5252',20);
-    this.shake = wasBlocked?3:8;
-    this.effects.push({type:'hit', x:this.playerX, y:0.5, t:0, color:'#ff5252'});
-    this.status(`${this.enemyDef.name}: ${moveName} — ${dmg} dmg${wasBlocked?' (blocked)':''}`);
-    // Energy regen on hit
-    if(Math.random()<0.3) this.gainEnergy(1);
-    if(this.playerHp<=0) this.endGame(false);
-    this.updateHUD();
-  }
-
-  // ── COMBO ──
-  triggerCombo() {
-    this.combo++;
-    clearTimeout(this.comboTimer);
-    this.comboTimer = setTimeout(()=>{ this.combo=0; this.updateHUD(); }, 2500);
-    if(this.combo>1) this.floatText(`${this.combo}x COMBO!`, this.playerX,'#ffea00', 14+this.combo*2);
-    if(this.combo>=3) this.gainEnergy(1);
-  }
-
-  gainEnergy(n) {
-    this.energy = Math.min(this.maxEnergy, this.energy+n);
-    this.updateHUD();
-  }
-
-  // ── COOLDOWNS ──
-  setCooldown(move) {
-    this.cooldowns[move.id] = move.cd;
-    const btn = document.getElementById(`btn_${move.id}`);
-    if(!btn) return;
-    btn.disabled = true;
-    const overlay = document.createElement('div');
-    overlay.className='cd-overlay';
-    overlay.id=`cd_${move.id}`;
-    overlay.textContent=Math.ceil(move.cd);
-    btn.appendChild(overlay);
-
-    const interval = setInterval(()=>{
-      this.cooldowns[move.id] = Math.max(0, this.cooldowns[move.id]-0.1);
-      const ov=document.getElementById(`cd_${move.id}`);
-      if(ov) ov.textContent=Math.ceil(this.cooldowns[move.id])||'';
-      if(this.cooldowns[move.id]<=0){
-        clearInterval(interval);
-        btn.disabled=false;
-        if(ov) ov.remove();
-      }
-    }, 100);
-  }
-
-  // ── HUD UPDATE ──
-  updateHUD() {
-    const ph = Math.max(0,Math.round(this.playerHp));
-    const eh = Math.max(0,Math.round(this.enemyHp));
-    document.getElementById('playerHpVal').textContent=ph;
-    document.getElementById('enemyHpVal').textContent=eh;
-    const php=ph/100, ehp=eh/this.enemyMaxHp;
-    document.getElementById('playerHpBar').style.width=(php*100)+'%';
-    document.getElementById('playerHpBar').style.background=php>0.5?'var(--hp-green)':php>0.25?'var(--hp-yellow)':'var(--hp-red)';
-    document.getElementById('enemyHpBar').style.width=(ehp*100)+'%';
-    document.getElementById('enemyHpBar').style.background=ehp>0.5?'var(--hp-green)':ehp>0.25?'var(--hp-yellow)':'var(--hp-red)';
-    document.getElementById('comboDisplay').textContent = this.combo>1?`${this.combo}x COMBO`:'—';
-    for(let i=0;i<this.maxEnergy;i++){
-      const p=document.getElementById(`ep_${i}`);
-      if(p) p.classList.toggle('filled', i<this.energy);
-    }
-  }
-
-  status(msg) { document.getElementById('statusMsg').textContent=msg; }
-
-  // ── FLOAT TEXT ──
-  floatText(text, xFrac, color, size) {
-    const wrap = this.canvas.parentElement;
-    const el = document.createElement('div');
-    el.className = 'float-text';
-    el.textContent = text;
-    el.style.cssText=`left:${xFrac*100}%;top:${30+Math.random()*30}%;color:${color};font-size:${size||20}px;transform:translateX(-50%)`;
-    wrap.appendChild(el);
-    setTimeout(()=>el.remove(), 900);
-  }
-
-  showMessage(text, dur=1500) {
-    const msg = document.getElementById('arenaMessage');
-    const txt = document.getElementById('arenaMessageText');
-    txt.textContent = text;
-    msg.style.display='flex';
-    setTimeout(()=>{ msg.style.display='none'; }, dur);
-  }
-
-  // ── CANVAS ANIMATIONS ──
-  animatePlayer(type, kb) {
-    this.playerAnim = {type, t:0, kb};
-  }
-  animateEnemy(type) {
-    this.enemyAnim = {type, t:0};
-  }
-
-  drawLoop() {
-    if(!this.active) return;
-    requestAnimationFrame(()=>this.drawLoop());
-    this.draw();
-  }
-
-  draw() {
-    const c = this.ctx;
-    const W = this.canvas.width, H = this.canvas.height;
-    if(!W||!H) return;
-
-    // shake
-    let ox=0, oy=0;
-    if(this.shake>0){ ox=(Math.random()-.5)*this.shake; oy=(Math.random()-.5)*this.shake; this.shake*=0.85; if(this.shake<0.3)this.shake=0; }
-    c.save();
-    c.translate(ox,oy);
-
-    // BG
-    const grad=c.createLinearGradient(0,0,0,H);
-    grad.addColorStop(0,'#0e0e1a');
-    grad.addColorStop(1,'#050510');
-    c.fillStyle=grad;
-    c.fillRect(0,0,W,H);
-
-    // Floor
-    c.fillStyle='#15152a';
-    c.fillRect(0,H*0.72,W,H*0.28);
-    c.strokeStyle='#2a2a4a';
-    c.lineWidth=2;
-    c.beginPath(); c.moveTo(0,H*0.72); c.lineTo(W,H*0.72); c.stroke();
-    // floor grid
-    c.strokeStyle='rgba(60,60,100,0.15)'; c.lineWidth=1;
-    for(let x=0;x<W;x+=60){ c.beginPath(); c.moveTo(x,H*0.72); c.lineTo(x+40,H); c.stroke(); }
-
-    // Crowd silhouettes
-    this.drawCrowd(c,W,H);
-
-    // fighters
-    const pX=this.playerX*W, eX=this.enemyX*W, fY=H*0.72;
-    this.drawFighter(c, pX, fY, this.style.color, this.playerAnim, false, this.playerHp<=0);
-    this.drawFighter(c, eX, fY, this.enemyDef.color, this.enemyAnim, true, this.enemyHp<=0);
-
-    // advance anims
-    if(this.playerAnim){ this.playerAnim.t+=0.08; if(this.playerAnim.t>=1)this.playerAnim=null; }
-    if(this.enemyAnim){ this.enemyAnim.t+=0.08; if(this.enemyAnim.t>=1)this.enemyAnim=null; }
-
-    // effects
-    this.effects = this.effects.filter(ef=>{
-      ef.t+=0.06;
-      if(ef.type==='hit'){
-        const ex=ef.x*W, ey=fY-80;
-        const r=30*ef.t;
-        const alpha=1-ef.t;
-        c.save();
-        c.globalAlpha=alpha;
-        const rg=c.createRadialGradient(ex,ey,0,ex,ey,r);
-        rg.addColorStop(0,ef.color);
-        rg.addColorStop(1,'transparent');
-        c.fillStyle=rg;
-        c.beginPath(); c.arc(ex,ey,r,0,Math.PI*2); c.fill();
-        c.restore();
-      }
-      return ef.t<1;
-    });
-
-    c.restore();
-  }
-
-  drawCrowd(c, W, H) {
-    const crowdY = H*0.68;
-    for(let i=0;i<40;i++){
-      const x=(i/40)*W + Math.sin(Date.now()*0.001+i)*3;
-      const h=20+Math.sin(i*7.3)*8;
-      const col=`hsl(${220+i*3},20%,${8+Math.random()*4}%)`;
-      c.fillStyle=col;
-      c.beginPath();
-      c.ellipse(x,crowdY,10,h,0,0,Math.PI*2);
-      c.fill();
-    }
-  }
-
-  drawFighter(c, x, floorY, color, anim, isEnemy, dead) {
-    c.save();
-    if(isEnemy) c.scale(-1,1), c.translate(-x*2,0);
-
-    const t = anim?anim.t:0;
-    const type = anim?anim.type:'idle';
-
-    let bodyX=x, bodyY=floorY;
-    let legAngle=Math.sin(Date.now()*0.003)*0.15;
-    let armAngle=0.3;
-    let lean=0;
-
-    if(type==='attack'){
-      const punch=Math.sin(t*Math.PI);
-      bodyX+=punch*(anim.kb||5);
-      armAngle=0.3+punch*1.2;
-      lean=punch*0.3;
-    }
-    if(type==='dash'){
-      bodyX+=t*30;
-      lean=0.4;
-    }
-
-    if(dead){
-      c.globalAlpha=0.4;
-      c.translate(x, floorY);
-      c.rotate(1.4);
-      c.translate(-x,-floorY);
-    }
-
-    // Shadow
-    c.fillStyle='rgba(0,0,0,0.35)';
-    c.beginPath(); c.ellipse(bodyX, floorY+2, 28, 7, 0, 0, Math.PI*2); c.fill();
-
-    // Legs
-    const legW=7, legH=45;
-    c.fillStyle=`${color}88`;
-    c.save(); c.translate(bodyX-8, bodyY-legH); c.rotate(legAngle);
-    c.fillRect(-legW/2,0,legW,legH); c.restore();
-    c.save(); c.translate(bodyX+8, bodyY-legH); c.rotate(-legAngle);
-    c.fillRect(-legW/2,0,legW,legH); c.restore();
-
-    // Torso
-    c.save(); c.translate(bodyX, bodyY-legH); c.rotate(lean);
-    c.fillStyle=color;
-    c.beginPath();
-    c.roundRect(-14,-55,28,55, [4,4,0,0]);
-    c.fill();
-    // Belt
-    c.fillStyle='rgba(0,0,0,0.4)';
-    c.fillRect(-14,-12,28,8);
-    // Head
-    c.fillStyle=color;
-    c.beginPath(); c.arc(0,-70,18,0,Math.PI*2); c.fill();
-    // Visor / eyes
-    c.fillStyle=`rgba(0,0,0,0.6)`;
-    c.beginPath(); c.roundRect(-10,-76,20,10,[3]); c.fill();
-    c.fillStyle='white';
-    c.beginPath(); c.arc(-4,-71,3,0,Math.PI*2); c.fill();
-    c.beginPath(); c.arc(4,-71,3,0,Math.PI*2); c.fill();
-    // Arms
-    c.fillStyle=color;
-    c.save(); c.translate(-18,-45); c.rotate(-armAngle);
-    c.fillRect(-6,0,10,35); c.restore();
-    c.save(); c.translate(18,-45); c.rotate(armAngle);
-    c.fillRect(-4,0,10,35); c.restore();
-    c.restore();
-
-    // HP glow ring
-    const hpFrac = isEnemy ? this.enemyHp/this.enemyMaxHp : this.playerHp/100;
-    if(hpFrac>0){
-      c.save();
-      c.strokeStyle=hpFrac>0.5?'rgba(0,230,118,0.4)':hpFrac>0.25?'rgba(255,234,0,0.4)':'rgba(255,23,68,0.4)';
-      c.lineWidth=2;
-      c.beginPath(); c.arc(bodyX, bodyY-legH-70, 22, -Math.PI/2, -Math.PI/2+hpFrac*Math.PI*2); c.stroke();
-      c.restore();
-    }
-
-    c.restore();
-  }
-
-  // ── END GAME ──
-  endGame(playerWon, customMsg) {
-    if(!this.active) return;
-    this.active = false;
-    clearInterval(this.timerInterval);
-    clearTimeout(this.enemyDelay);
-    window.removeEventListener('keydown', this._keyHandler);
-
-    const msg = customMsg || (playerWon ? 'KO! YOU WIN!' : 'KO! YOU LOSE!');
-    this.showMessage(msg, 2000);
-
-    setTimeout(()=>{
-      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-      document.getElementById('resultScreen').classList.add('active');
-      const t = document.getElementById('resultTitle');
-      const s = document.getElementById('resultStats');
-      if(playerWon){
-        t.textContent='VICTORY'; t.className='result-title win';
-        s.innerHTML=`You defeated <span>${this.enemyDef.name}</span> as the <span>${this.style.name}</span><br>Enemy HP remaining: <span>${Math.round(this.enemyHp)}</span> | Your HP: <span>${Math.round(this.playerHp)}</span>`;
-      } else {
-        t.textContent='DEFEATED'; t.className='result-title lose';
-        s.innerHTML=`<span>${this.enemyDef.name}</span> defeated you<br>Your HP: <span>${Math.round(this.playerHp)}</span> | Enemy HP: <span>${Math.round(this.enemyHp)}</span>`;
-      }
-    }, 2200);
-  }
+    html += `</div></div>`;
+  });
+  container.innerHTML = html;
 }
+
+function handleSearch(val) {
+  const searchEl = document.getElementById('searchResults');
+  const pillsEl = document.getElementById('pillsContainer');
+  const genreEl = document.getElementById('genreContainer');
+  if (!val.trim()) {
+    searchEl.classList.add('hidden');
+    pillsEl.classList.remove('hidden');
+    genreEl.classList.remove('hidden');
+    return;
+  }
+  pillsEl.classList.add('hidden');
+  genreEl.classList.add('hidden');
+  searchEl.classList.remove('hidden');
+  const results = animeData.filter(a => a.title.toLowerCase().includes(val.toLowerCase()));
+  let html = `<div class="search-meta">${results.length} result${results.length !== 1 ? 's' : ''} for "${val}"</div>`;
+  results.forEach(a => {
+    html += `<div class="search-card">
+      <span class="search-card-num">#${a.id}</span>
+      <span class="search-card-title">${a.title}</span>
+      <div class="search-tags">${a.genres.map(g => `<span class="search-tag">${g}</span>`).join('')}</div>
+    </div>`;
+  });
+  searchEl.innerHTML = html;
+}
+
+buildPills();
+buildGenres();
 </script>
 </body>
 </html>
