@@ -12,7 +12,9 @@
     color: #e2e0f0;
     font-family: 'Segoe UI', system-ui, sans-serif;
     padding-bottom: 60px;
+    overflow-x: hidden;
   }
+
   .header {
     background: linear-gradient(135deg, #0f0f1a 0%, #1a0a2e 50%, #0a0f1a 100%);
     border-bottom: 1px solid rgba(139,92,246,0.3);
@@ -20,21 +22,65 @@
     text-align: center;
     position: relative;
     overflow: hidden;
+    z-index: 1;
   }
   .header-bg {
     position: absolute; inset: 0;
-    background-image: radial-gradient(circle at 20% 50%, rgba(139,92,246,0.08) 0%, transparent 60%),
-                      radial-gradient(circle at 80% 50%, rgba(6,182,212,0.06) 0%, transparent 60%);
+    background-image: radial-gradient(circle at 20% 50%, rgba(139,92,246,0.12) 0%, transparent 60%),
+                      radial-gradient(circle at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 60%);
+    animation: bgPulse 4s ease-in-out infinite alternate;
   }
-  .header-inner { position: relative; }
-  .header-sub { font-size: 11px; letter-spacing: 6px; color: #8b5cf6; text-transform: uppercase; margin-bottom: 8px; }
-  .header h1 {
+  @keyframes bgPulse { from { opacity: 0.6; } to { opacity: 1; } }
+  .header::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none; z-index: 1;
+  }
+  .header-inner { position: relative; z-index: 2; }
+  .header-sub {
+    font-size: 11px; letter-spacing: 6px; color: #8b5cf6;
+    text-transform: uppercase; margin-bottom: 8px;
+    animation: fadeSlideDown 0.8s ease both;
+  }
+  .glitch {
+    position: relative;
     font-size: clamp(24px, 7vw, 40px); font-weight: 800; letter-spacing: -1px;
     background: linear-gradient(135deg, #fff 30%, #a78bfa 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: fadeSlideDown 0.8s ease 0.2s both;
   }
-  .header p { margin-top: 8px; color: #6b7280; font-size: 14px; }
-  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px 0; }
+  .glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute; top: 0; left: 0; width: 100%;
+    background: linear-gradient(135deg, #fff 30%, #a78bfa 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .glitch::before {
+    animation: glitch1 3s infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+  }
+  .glitch::after {
+    animation: glitch2 3s infinite;
+    clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+  }
+  @keyframes glitch1 {
+    0%,90%,100%{transform:translateX(0);opacity:0}
+    92%{transform:translateX(-4px);opacity:0.8}
+    94%{transform:translateX(4px);opacity:0.6}
+    96%{transform:translateX(-2px);opacity:0.8}
+    98%{transform:translateX(0);opacity:0}
+  }
+  @keyframes glitch2 {
+    0%,90%,100%{transform:translateX(0);opacity:0}
+    93%{transform:translateX(4px);opacity:0.8}
+    95%{transform:translateX(-4px);opacity:0.6}
+    97%{transform:translateX(2px);opacity:0.8}
+    99%{transform:translateX(0);opacity:0}
+  }
+  .header p { margin-top: 8px; color: #6b7280; font-size: 14px; animation: fadeSlideDown 0.8s ease 0.4s both; }
+  @keyframes fadeSlideDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px 0; position: relative; z-index: 1; }
   #searchInput {
     width: 100%; padding: 12px 16px;
     background: rgba(255,255,255,0.05);
@@ -42,64 +88,58 @@
     border-radius: 12px; color: #e2e0f0;
     font-size: 14px; outline: none;
     margin-bottom: 24px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    animation: fadeSlideDown 0.8s ease 0.5s both;
   }
+  #searchInput:focus { border-color: rgba(139,92,246,0.5); box-shadow: 0 0 20px rgba(139,92,246,0.15); }
   #searchInput::placeholder { color: #4b5563; }
-  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; animation: fadeSlideDown 0.8s ease 0.6s both; }
   .pill {
     padding: 6px 14px; border-radius: 20px; font-size: 12px;
     cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
     background: rgba(255,255,255,0.03); color: #9ca3af;
     transition: all 0.2s; font-family: inherit;
   }
+  .pill:hover { transform: translateY(-1px); }
   .pill.active-all { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #e2e0f0; font-weight: 700; }
   .genre-section { margin-bottom: 32px; }
-  .genre-header {
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 14px; padding-bottom: 10px;
+  .genre-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 10px; }
+  .genre-title {
+    font-size: 16px; font-weight: 700;
+    animation: neonPulse 2.5s ease-in-out infinite alternate;
   }
-  .genre-title { font-size: 16px; font-weight: 700; }
-  .genre-count {
-    font-size: 11px; padding: 2px 8px; border-radius: 20px;
-  }
-  .anime-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 8px;
-  }
-  @media (max-width: 600px) {
-    .anime-grid { grid-template-columns: 1fr; }
-  }
+  @keyframes neonPulse { from{filter:brightness(1)} to{filter:brightness(1.3) drop-shadow(0 0 6px currentColor)} }
+  .genre-count { font-size: 11px; padding: 2px 8px; border-radius: 20px; }
+  .anime-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+  @media (max-width: 600px) { .anime-grid { grid-template-columns: 1fr; } }
   .anime-card {
     border-radius: 10px; padding: 10px 14px;
     display: flex; flex-direction: column; gap: 6px;
-    transition: transform 0.15s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    opacity: 0;
+    animation: cardReveal 0.5s ease forwards;
   }
+  .anime-card:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
   .anime-card:active { transform: scale(0.98); }
+  @keyframes cardReveal { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
   .anime-row { display: flex; align-items: center; gap: 8px; }
   .anime-num { font-size: 11px; opacity: 0.7; min-width: 24px; }
   .anime-title { font-weight: 600; font-size: 13px; line-height: 1.3; }
   .tag-row { display: flex; flex-wrap: wrap; gap: 4px; padding-left: 32px; }
-  .tag {
-    font-size: 10px; padding: 1px 7px; border-radius: 20px;
-    background: rgba(0,0,0,0.3); color: #9ca3af;
-    border: 1px solid rgba(255,255,255,0.06);
-  }
+  .tag { font-size: 10px; padding: 1px 7px; border-radius: 20px; background: rgba(0,0,0,0.3); color: #9ca3af; border: 1px solid rgba(255,255,255,0.06); }
   .search-results { margin-bottom: 32px; }
   .search-meta { font-size: 12px; color: #6b7280; margin-bottom: 10px; }
   .search-card {
     background: rgba(255,255,255,0.04); border-radius: 8px;
     padding: 10px 14px; margin-bottom: 6px;
-    display: flex; align-items: center; gap: 12; flex-wrap: wrap;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
     border: 1px solid rgba(255,255,255,0.08);
+    animation: cardReveal 0.3s ease forwards;
   }
   .search-card-num { color: #4b5563; font-size: 12px; min-width: 22px; }
   .search-card-title { font-weight: 600; font-size: 14px; flex: 1; }
-  .search-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-  .search-tag {
-    font-size: 10px; padding: 2px 8px; border-radius: 20px;
-    background: rgba(139,92,246,0.15); color: #a78bfa;
-    border: 1px solid rgba(139,92,246,0.3);
-  }
+  .search-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; width: 100%; }
+  .search-tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
   .hidden { display: none; }
 </style>
 </head>
@@ -109,13 +149,13 @@
   <div class="header-bg"></div>
   <div class="header-inner">
     <div class="header-sub">Shakil's Anime Vault</div>
-    <h1>94 Anime Watched</h1>
+    <h1 class="glitch" data-text="95 Anime Watched">95 Anime Watched</h1>
     <p>Sorted by Genre — 13 Categories</p>
   </div>
 </div>
 
 <div class="container">
-  <input type="text" id="searchInput" placeholder="Search anime..." oninput="handleSearch(this.value)"/>
+  <input type="text" id="searchInput" placeholder="🔍 Search anime..." oninput="handleSearch(this.value)"/>
   <div class="search-results hidden" id="searchResults"></div>
   <div id="pillsContainer" class="pills"></div>
   <div id="genreContainer"></div>
@@ -148,6 +188,7 @@ const animeData = [
   { id: 3, title: "Sakamoto Days", genres: ["Action", "Comedy"] },
   { id: 4, title: "Blue Lock", genres: ["Action", "Sports"] },
   { id: 5, title: "Chainsaw Man", genres: ["Action", "Dark Fantasy"] },
+  { id: 6, title: "Spy x Family", genres: ["Action", "Comedy"] },
   { id: 9, title: "Naruto", genres: ["Action", "Adventure", "Shonen"] },
   { id: 10, title: "Wind Breaker", genres: ["Action", "Street"] },
   { id: 14, title: "Attack on Titan", genres: ["Action", "Dark Fantasy", "Thriller"] },
@@ -164,6 +205,7 @@ const animeData = [
   { id: 62, title: "The God of High School", genres: ["Action", "Martial Arts"] },
   { id: 67, title: "One Punch Man", genres: ["Action", "Comedy", "Superhero"] },
   { id: 72, title: "Mashle: Magic and Muscles", genres: ["Action", "Comedy", "Shonen"] },
+  { id: 75, title: "Buddy Daddies", genres: ["Action", "Comedy"] },
   { id: 88, title: "Drifters", genres: ["Action", "Historical Fantasy"] },
   { id: 93, title: "Soul Eater", genres: ["Action", "Dark Fantasy", "Comedy"] },
   { id: 94, title: "Fire Force", genres: ["Action", "Dark Fantasy", "Supernatural"] },
@@ -182,24 +224,24 @@ const animeData = [
   { id: 52, title: "The Fragrant Flower Blooms with Dignity", genres: ["Romance", "Slice of Life"] },
   { id: 58, title: "Mechanical Marie", genres: ["Romance", "Slice of Life"] },
   { id: 70, title: "Your Lie in April", genres: ["Romance", "Drama", "Music"] },
-  { id: 75, title: "Buddy Daddies", genres: ["Action", "Comedy"] },
+  { id: 81, title: "Domestic Girlfriend", genres: ["Romance", "Drama", "Ecchi"] },
   { id: 82, title: "Hokkaido Gals Are Super Adorable!", genres: ["Romance", "Comedy", "Slice of Life"] },
-  { id: 83, title: "Paradise Kiss", genres: ["Shoujo", "Romance", "Drama"] },
   { id: 85, title: "More Than a Married Couple, But Not Lovers", genres: ["Romance", "Comedy"] },
   { id: 90, title: "The Angel Next Door Spoils Me Rotten", genres: ["Romance", "Slice of Life"] },
+  { id: 83, title: "Paradise Kiss", genres: ["Shoujo", "Romance", "Drama"] },
   { id: 92, title: "NANA", genres: ["Shoujo", "Romance", "Drama", "Music"] },
   { id: 53, title: "Megalo Box", genres: ["Sports", "Action", "Drama"] },
   { id: 61, title: "Overtake!!", genres: ["Sports", "Drama"] },
   { id: 76, title: "Initial D", genres: ["Sports", "Racing", "Drama"] },
   { id: 79, title: "MF Ghost", genres: ["Sports", "Racing"] },
   { id: 86, title: "Ping Pong the Animation", genres: ["Sports", "Drama"] },
+  { id: 95, title: "Tomorrow's Joe", genres: ["Sports", "Drama"] },
   { id: 11, title: "Tokyo Revengers", genres: ["Action", "Crime", "Supernatural"] },
   { id: 19, title: "My Home Hero", genres: ["Thriller", "Crime", "Drama"] },
   { id: 27, title: "91 Days", genres: ["Crime", "Thriller", "Historical"] },
   { id: 41, title: "Lord of the Mysteries", genres: ["Mystery", "Dark Fantasy", "Supernatural"] },
   { id: 64, title: "Blue Literature / Aoi Bungaku Series", genres: ["Drama", "Psychological", "Literary"] },
   { id: 66, title: "The Millionaire Detective – Balance: Unlimited", genres: ["Mystery", "Action", "Comedy"] },
-  { id: 6, title: "Spy x Family", genres: ["Action", "Comedy"] },
   { id: 32, title: "Kaiju No. 8", genres: ["Action", "Supernatural", "Sci-Fi"] },
   { id: 45, title: "Petshop of Horrors", genres: ["Horror", "Supernatural", "Mystery"] },
   { id: 46, title: "Dororo", genres: ["Historical", "Supernatural", "Action"] },
@@ -214,51 +256,33 @@ const animeData = [
   { id: 59, title: "Bakuon!!", genres: ["Comedy", "Slice of Life"] },
   { id: 23, title: "Erased", genres: ["Mystery", "Thriller", "Drama"] },
   { id: 78, title: "Cowboy Bebop", genres: ["Sci-Fi", "Action", "Neo-Noir"] },
-  { id: 81, title: "Domestic Girlfriend", genres: ["Romance", "Drama", "Ecchi"] },
   { id: 87, title: "FLCL", genres: ["Surreal", "Sci-Fi", "Coming-of-Age"] },
   { id: 65, title: "Lookism", genres: ["Action", "Drama", "School"] },
 ];
 
 const GENRE_GROUPS = [
-  { label: "🧠 Psychological & Thriller", key: "Psychological", color: "#8b5cf6", bg: "rgba(139,92,246,0.08)", border: "rgba(139,92,246,0.35)",
-    match: g => g.includes("Psychological") || (g.includes("Thriller") && !g.includes("Action")) },
-  { label: "💀 Horror & Dark", key: "Horror", color: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.35)",
-    match: g => g.includes("Horror") || g.includes("Dark") || g.includes("Gore") },
-  { label: "⚔️ Action & Battle Shonen", key: "Action", color: "#f97316", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.35)",
-    match: g => g.includes("Action") && !g.includes("Sci-Fi") && !g.includes("Sports") && !g.includes("Crime") && !g.includes("Comedy") },
-  { label: "🚀 Sci-Fi & Cyberpunk", key: "Sci-Fi", color: "#06b6d4", bg: "rgba(6,182,212,0.08)", border: "rgba(6,182,212,0.35)",
-    match: g => (g.includes("Sci-Fi") || g.includes("Mecha") || g.includes("Cyberpunk")) && !g.includes("Action") },
-  { label: "💕 Romance & Slice of Life", key: "Romance", color: "#ec4899", bg: "rgba(236,72,153,0.08)", border: "rgba(236,72,153,0.35)",
-    match: g => (g.includes("Romance") || g.includes("Slice of Life")) && !g.includes("Shoujo") },
-  { label: "🌸 Shoujo & Romance Drama", key: "Shoujo", color: "#f9a8d4", bg: "rgba(249,168,212,0.08)", border: "rgba(249,168,212,0.35)",
-    match: g => g.includes("Shoujo") },
-  { label: "🏆 Sports", key: "Sports", color: "#22c55e", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.35)",
-    match: g => g.includes("Sports") || g.includes("Racing") },
-  { label: "🔍 Crime & Mystery", key: "Mystery", color: "#eab308", bg: "rgba(234,179,8,0.08)", border: "rgba(234,179,8,0.35)",
-    match: g => (g.includes("Crime") || g.includes("Mystery")) && !g.includes("Horror") },
-  { label: "👻 Supernatural & Fantasy", key: "Supernatural", color: "#a78bfa", bg: "rgba(167,139,250,0.08)", border: "rgba(167,139,250,0.35)",
-    match: g => g.includes("Supernatural") || g.includes("Fantasy") },
-  { label: "🌍 Post-Apocalyptic & Dark Fantasy", key: "Post-Apocalyptic", color: "#78716c", bg: "rgba(120,113,108,0.08)", border: "rgba(120,113,108,0.35)",
-    match: g => g.includes("Post-Apocalyptic") || g.includes("Steampunk") },
-  { label: "😂 Comedy & Ecchi", key: "Comedy", color: "#facc15", bg: "rgba(250,204,21,0.08)", border: "rgba(250,204,21,0.35)",
-    match: g => (g.includes("Comedy") || g.includes("Ecchi")) && !g.includes("Action") && !g.includes("Romance") && !g.includes("Sports") },
-  { label: "🎨 Classics & Artsy", key: "Artsy", color: "#f472b6", bg: "rgba(244,114,182,0.08)", border: "rgba(244,114,182,0.35)",
-    match: g => g.includes("Neo-Noir") || g.includes("Surreal") || g.includes("Artsy") || g.includes("Literary") || g.includes("Coming-of-Age") },
-  { label: "📱 Manhwa / Webtoon", key: "Manhwa", color: "#34d399", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.35)",
-    match: g => g.includes("School") && g.includes("Drama") },
+  { label: "🧠 Psychological & Thriller", key: "Psychological", color: "#8b5cf6", bg: "rgba(139,92,246,0.08)", border: "rgba(139,92,246,0.35)", match: g => g.includes("Psychological") || (g.includes("Thriller") && !g.includes("Action")) },
+  { label: "💀 Horror & Dark", key: "Horror", color: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.35)", match: g => g.includes("Horror") || g.includes("Dark") || g.includes("Gore") },
+  { label: "⚔️ Action & Battle Shonen", key: "Action", color: "#f97316", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.35)", match: g => g.includes("Action") && !g.includes("Sci-Fi") && !g.includes("Sports") && !g.includes("Crime") && !g.includes("Comedy") },
+  { label: "🚀 Sci-Fi & Cyberpunk", key: "Sci-Fi", color: "#06b6d4", bg: "rgba(6,182,212,0.08)", border: "rgba(6,182,212,0.35)", match: g => (g.includes("Sci-Fi") || g.includes("Mecha") || g.includes("Cyberpunk")) && !g.includes("Action") },
+  { label: "💕 Romance & Slice of Life", key: "Romance", color: "#ec4899", bg: "rgba(236,72,153,0.08)", border: "rgba(236,72,153,0.35)", match: g => (g.includes("Romance") || g.includes("Slice of Life")) && !g.includes("Shoujo") },
+  { label: "🌸 Shoujo & Romance Drama", key: "Shoujo", color: "#f9a8d4", bg: "rgba(249,168,212,0.08)", border: "rgba(249,168,212,0.35)", match: g => g.includes("Shoujo") },
+  { label: "🏆 Sports", key: "Sports", color: "#22c55e", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.35)", match: g => g.includes("Sports") || g.includes("Racing") },
+  { label: "🔍 Crime & Mystery", key: "Mystery", color: "#eab308", bg: "rgba(234,179,8,0.08)", border: "rgba(234,179,8,0.35)", match: g => (g.includes("Crime") || g.includes("Mystery")) && !g.includes("Horror") },
+  { label: "👻 Supernatural & Fantasy", key: "Supernatural", color: "#a78bfa", bg: "rgba(167,139,250,0.08)", border: "rgba(167,139,250,0.35)", match: g => g.includes("Supernatural") || g.includes("Fantasy") },
+  { label: "🌍 Post-Apocalyptic & Dark Fantasy", key: "Post-Apocalyptic", color: "#78716c", bg: "rgba(120,113,108,0.08)", border: "rgba(120,113,108,0.35)", match: g => g.includes("Post-Apocalyptic") || g.includes("Steampunk") },
+  { label: "😂 Comedy & Ecchi", key: "Comedy", color: "#facc15", bg: "rgba(250,204,21,0.08)", border: "rgba(250,204,21,0.35)", match: g => (g.includes("Comedy") || g.includes("Ecchi")) && !g.includes("Action") && !g.includes("Romance") && !g.includes("Sports") },
+  { label: "🎨 Classics & Artsy", key: "Artsy", color: "#f472b6", bg: "rgba(244,114,182,0.08)", border: "rgba(244,114,182,0.35)", match: g => g.includes("Neo-Noir") || g.includes("Surreal") || g.includes("Artsy") || g.includes("Literary") || g.includes("Coming-of-Age") },
+  { label: "📱 Manhwa / Webtoon", key: "Manhwa", color: "#34d399", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.35)", match: g => g.includes("School") && g.includes("Drama") },
 ];
 
 function assignGroup(anime) {
-  for (const group of GENRE_GROUPS) {
-    if (group.match(anime.genres)) return group.key;
-  }
+  for (const group of GENRE_GROUPS) { if (group.match(anime.genres)) return group.key; }
   return "Action";
 }
-
 const grouped = {};
 GENRE_GROUPS.forEach(g => grouped[g.key] = []);
 animeData.forEach(a => grouped[assignGroup(a)].push(a));
-
 let activeGroup = null;
 
 function buildPills() {
@@ -266,51 +290,28 @@ function buildPills() {
   let html = `<button class="pill active-all" onclick="filterGroup(null, this)">All</button>`;
   GENRE_GROUPS.forEach(g => {
     const count = grouped[g.key]?.length || 0;
-    html += `<button class="pill" onclick="filterGroup('${g.key}', this)" 
-      style="color:${g.color}" data-key="${g.key}">${g.label} <span style="opacity:0.7">(${count})</span></button>`;
+    html += `<button class="pill" onclick="filterGroup('${g.key}', this)" style="color:${g.color}" data-key="${g.key}">${g.label} <span style="opacity:0.7">(${count})</span></button>`;
   });
   container.innerHTML = html;
 }
 
 function filterGroup(key, btn) {
   activeGroup = key;
-  document.querySelectorAll('.pill').forEach(p => {
-    p.classList.remove('active-all');
-    p.style.background = 'rgba(255,255,255,0.03)';
-    p.style.borderColor = 'rgba(255,255,255,0.08)';
-    p.style.fontWeight = '400';
-  });
-  if (key === null) {
-    btn.classList.add('active-all');
-  } else {
-    const group = GENRE_GROUPS.find(g => g.key === key);
-    btn.style.background = group.bg;
-    btn.style.borderColor = group.border;
-    btn.style.fontWeight = '700';
-  }
+  document.querySelectorAll('.pill').forEach(p => { p.classList.remove('active-all'); p.style.background='rgba(255,255,255,0.03)'; p.style.borderColor='rgba(255,255,255,0.08)'; p.style.fontWeight='400'; });
+  if (key === null) { btn.classList.add('active-all'); }
+  else { const group = GENRE_GROUPS.find(g => g.key===key); btn.style.background=group.bg; btn.style.borderColor=group.border; btn.style.fontWeight='700'; }
   buildGenres();
 }
 
 function buildGenres() {
   const container = document.getElementById('genreContainer');
   let html = '';
-  GENRE_GROUPS.filter(g => !activeGroup || activeGroup === g.key).forEach(group => {
+  GENRE_GROUPS.filter(g => !activeGroup || activeGroup===g.key).forEach(group => {
     const list = grouped[group.key] || [];
     if (!list.length) return;
-    html += `<div class="genre-section">
-      <div class="genre-header" style="border-bottom:1px solid ${group.border}">
-        <h2 class="genre-title" style="color:${group.color}">${group.label}</h2>
-        <span class="genre-count" style="background:${group.bg};color:${group.color};border:1px solid ${group.border}">${list.length} anime</span>
-      </div>
-      <div class="anime-grid">`;
-    list.forEach(anime => {
-      html += `<div class="anime-card" style="background:${group.bg};border:1px solid ${group.border}">
-        <div class="anime-row">
-          <span class="anime-num" style="color:${group.color}">#${anime.id}</span>
-          <span class="anime-title">${anime.title}</span>
-        </div>
-        <div class="tag-row">${anime.genres.map(g => `<span class="tag">${g}</span>`).join('')}</div>
-      </div>`;
+    html += `<div class="genre-section"><div class="genre-header" style="border-bottom:1px solid ${group.border}"><h2 class="genre-title" style="color:${group.color}">${group.label}</h2><span class="genre-count" style="background:${group.bg};color:${group.color};border:1px solid ${group.border}">${list.length} anime</span></div><div class="anime-grid">`;
+    list.forEach((anime, i) => {
+      html += `<div class="anime-card" style="background:${group.bg};border:1px solid ${group.border};animation-delay:${i*40}ms"><div class="anime-row"><span class="anime-num" style="color:${group.color}">#${anime.id}</span><span class="anime-title">${anime.title}</span></div><div class="tag-row">${anime.genres.map(g=>`<span class="tag">${g}</span>`).join('')}</div></div>`;
     });
     html += `</div></div>`;
   });
@@ -318,27 +319,12 @@ function buildGenres() {
 }
 
 function handleSearch(val) {
-  const searchEl = document.getElementById('searchResults');
-  const pillsEl = document.getElementById('pillsContainer');
-  const genreEl = document.getElementById('genreContainer');
-  if (!val.trim()) {
-    searchEl.classList.add('hidden');
-    pillsEl.classList.remove('hidden');
-    genreEl.classList.remove('hidden');
-    return;
-  }
-  pillsEl.classList.add('hidden');
-  genreEl.classList.add('hidden');
-  searchEl.classList.remove('hidden');
+  const searchEl=document.getElementById('searchResults'), pillsEl=document.getElementById('pillsContainer'), genreEl=document.getElementById('genreContainer');
+  if (!val.trim()) { searchEl.classList.add('hidden'); pillsEl.classList.remove('hidden'); genreEl.classList.remove('hidden'); return; }
+  pillsEl.classList.add('hidden'); genreEl.classList.add('hidden'); searchEl.classList.remove('hidden');
   const results = animeData.filter(a => a.title.toLowerCase().includes(val.toLowerCase()));
-  let html = `<div class="search-meta">${results.length} result${results.length !== 1 ? 's' : ''} for "${val}"</div>`;
-  results.forEach(a => {
-    html += `<div class="search-card">
-      <span class="search-card-num">#${a.id}</span>
-      <span class="search-card-title">${a.title}</span>
-      <div class="search-tags">${a.genres.map(g => `<span class="search-tag">${g}</span>`).join('')}</div>
-    </div>`;
-  });
+  let html = `<div class="search-meta">${results.length} result${results.length!==1?'s':''} for "${val}"</div>`;
+  results.forEach(a => { html += `<div class="search-card"><span class="search-card-num">#${a.id}</span><span class="search-card-title">${a.title}</span><div class="search-tags">${a.genres.map(g=>`<span class="search-tag">${g}</span>`).join('')}</div></div>`; });
   searchEl.innerHTML = html;
 }
 
